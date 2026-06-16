@@ -1,0 +1,34 @@
+# ── Dependencias ──
+node_modules/
+**/node_modules/
+
+# ── Builds / artefactos ──
+.next/
+**/.next/
+dist/
+**/dist/
+out/
+**/out/
+*.tsbuildinfo
+next-env.d.ts
+
+# ── Variables de entorno (SECRETO — nunca subir) ──
+.env
+.env.local
+.env*.local
+**/.env
+**/.env.local
+# (los .env.example SÍ se suben: son plantillas sin claves)
+
+# ── Logs ──
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Editor / sistema ──
+.DS_Store
+.vscode/
+.idea/
+.claude/
+*.pem
