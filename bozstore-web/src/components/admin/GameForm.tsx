@@ -87,16 +87,16 @@ function ImageUploadField({
     <div>
       {/* Label + mode toggle */}
       <div className="mb-1.5 flex items-center justify-between gap-3">
-        <span className="font-inter text-[10px] uppercase tracking-widest text-white/40">
+        <span className="font-inter text-[10px] uppercase tracking-widest text-zinc-500 dark:text-white/40">
           {label}
-          <span className="ml-1.5 normal-case tracking-normal text-white/20">{hint}</span>
+          <span className="ml-1.5 normal-case tracking-normal text-zinc-300 dark:text-white/20">{hint}</span>
         </span>
-        <div className="flex shrink-0 overflow-hidden border border-white/10">
+        <div className="flex shrink-0 overflow-hidden border border-zinc-200 dark:border-white/10">
           <button
             type="button"
             onClick={() => setMode('url')}
             className={`flex items-center gap-1 px-2.5 py-1 font-inter text-[9px] uppercase tracking-wider transition-colors ${
-              mode === 'url' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
+              mode === 'url' ? 'bg-white/10 text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-white/30 hover:text-zinc-500 dark:text-white/50'
             }`}
           >
             <Link2 className="h-2.5 w-2.5" />
@@ -105,8 +105,8 @@ function ImageUploadField({
           <button
             type="button"
             onClick={() => setMode('file')}
-            className={`flex items-center gap-1 border-l border-white/10 px-2.5 py-1 font-inter text-[9px] uppercase tracking-wider transition-colors ${
-              mode === 'file' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
+            className={`flex items-center gap-1 border-l border-zinc-200 dark:border-white/10 px-2.5 py-1 font-inter text-[9px] uppercase tracking-wider transition-colors ${
+              mode === 'file' ? 'bg-white/10 text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-white/30 hover:text-zinc-500 dark:text-white/50'
             }`}
           >
             <Upload className="h-2.5 w-2.5" />
@@ -124,8 +124,8 @@ function ImageUploadField({
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://..."
-          className={`w-full border bg-zinc-800 px-4 py-2.5 font-inter text-sm text-white placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
-            error ? 'border-red-500/50' : 'border-white/10'
+          className={`w-full border bg-zinc-200 dark:bg-zinc-800 px-4 py-2.5 font-inter text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
+            error ? 'border-red-500/50' : 'border-zinc-200 dark:border-white/10'
           }`}
         />
       ) : (
@@ -139,20 +139,20 @@ function ImageUploadField({
           />
           <label
             htmlFor={fileId}
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-white/10 bg-zinc-900 py-10 transition-colors hover:border-white/25 hover:bg-zinc-800"
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-zinc-900 py-10 transition-colors hover:border-white/25 hover:bg-zinc-200 dark:bg-zinc-800"
           >
             {uploading ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin text-white/30" />
-                <span className="font-inter text-[10px] text-white/30">Subiendo imagen…</span>
+                <Loader2 className="h-5 w-5 animate-spin text-zinc-400 dark:text-white/30" />
+                <span className="font-inter text-[10px] text-zinc-400 dark:text-white/30">Subiendo imagen…</span>
               </>
             ) : (
               <>
                 <ImageIcon className="h-7 w-7 text-white/10" />
-                <span className="font-inter text-xs text-white/40">
+                <span className="font-inter text-xs text-zinc-500 dark:text-white/40">
                   Haz clic para elegir imagen
                 </span>
-                <span className="font-inter text-[10px] text-white/20">
+                <span className="font-inter text-[10px] text-zinc-300 dark:text-white/20">
                   JPG · PNG · WebP · max 5 MB
                 </span>
               </>
@@ -167,14 +167,14 @@ function ImageUploadField({
       {/* Preview */}
       {url && (
         <div className="mt-3 flex items-start gap-3">
-          <div className={`relative ${previewClass} overflow-hidden border border-white/10 bg-zinc-800`}>
+          <div className={`relative ${previewClass} overflow-hidden border border-zinc-200 dark:border-white/10 bg-zinc-200 dark:bg-zinc-800`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={url} alt="Preview" className="h-full w-full object-cover" />
           </div>
           <button
             type="button"
             onClick={() => setUrl('')}
-            className="mt-1 flex items-center gap-1 font-inter text-[10px] text-white/20 transition-colors hover:text-red-400"
+            className="mt-1 flex items-center gap-1 font-inter text-[10px] text-zinc-300 dark:text-white/20 transition-colors hover:text-red-400"
           >
             <X className="h-3 w-3" /> Quitar
           </button>
@@ -209,9 +209,9 @@ function ScreenshotsField({ defaultValue }: { defaultValue?: string[] }) {
     <div>
       {/* Label + upload button */}
       <div className="mb-1.5 flex items-center justify-between gap-3">
-        <span className="font-inter text-[10px] uppercase tracking-widest text-white/40">
+        <span className="font-inter text-[10px] uppercase tracking-widest text-zinc-500 dark:text-white/40">
           Capturas de pantalla
-          <span className="ml-1.5 normal-case tracking-normal text-white/20">
+          <span className="ml-1.5 normal-case tracking-normal text-zinc-300 dark:text-white/20">
             · URL por línea o sube archivos
           </span>
         </span>
@@ -226,8 +226,8 @@ function ScreenshotsField({ defaultValue }: { defaultValue?: string[] }) {
           />
           <label
             htmlFor={fileId}
-            className={`flex shrink-0 cursor-pointer items-center gap-1.5 border border-white/10 px-2.5 py-1 font-inter text-[9px] uppercase tracking-wider transition-colors ${
-              uploading ? 'text-white/20' : 'text-white/35 hover:border-white/25 hover:text-white/60'
+            className={`flex shrink-0 cursor-pointer items-center gap-1.5 border border-zinc-200 dark:border-white/10 px-2.5 py-1 font-inter text-[9px] uppercase tracking-wider transition-colors ${
+              uploading ? 'text-zinc-300 dark:text-white/20' : 'text-zinc-400 dark:text-white/35 hover:border-white/25 hover:text-zinc-700 dark:hover:text-zinc-500 dark:text-white/60'
             }`}
           >
             {uploading
@@ -245,7 +245,7 @@ function ScreenshotsField({ defaultValue }: { defaultValue?: string[] }) {
         onChange={(e) => setLines(e.target.value.split('\n'))}
         rows={4}
         placeholder={'https://ejemplo.com/img1.jpg\nhttps://ejemplo.com/img2.jpg'}
-        className="w-full resize-none border border-white/10 bg-zinc-800 px-4 py-2.5 font-inter text-sm text-white placeholder-white/20 outline-none transition-colors focus:border-red-500/40"
+        className="w-full resize-none border border-zinc-200 dark:border-white/10 bg-zinc-200 dark:bg-zinc-800 px-4 py-2.5 font-inter text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/20 outline-none transition-colors focus:border-red-500/40"
       />
 
       {upErr && <p className="mt-1 font-inter text-[10px] text-red-400">{upErr}</p>}
@@ -254,13 +254,13 @@ function ScreenshotsField({ defaultValue }: { defaultValue?: string[] }) {
       {lines.filter(Boolean).length > 0 && (
         <div className="mt-3 grid grid-cols-4 gap-2">
           {lines.filter(Boolean).map((url, i) => (
-            <div key={i} className="group relative aspect-video overflow-hidden border border-white/10 bg-zinc-800">
+            <div key={i} className="group relative aspect-video overflow-hidden border border-zinc-200 dark:border-white/10 bg-zinc-200 dark:bg-zinc-800">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
                 onClick={() => setLines((p) => p.filter((_, j) => j !== i))}
-                className="absolute right-1 top-1 hidden h-5 w-5 items-center justify-center bg-black/70 text-white/70 transition-colors hover:bg-red-600/80 hover:text-white group-hover:flex"
+                className="absolute right-1 top-1 hidden h-5 w-5 items-center justify-center bg-black/70 text-zinc-600 dark:text-white/70 transition-colors hover:bg-red-600/80 hover:text-zinc-900 dark:text-white group-hover:flex"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -282,15 +282,15 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-white/40">
+      <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-zinc-500 dark:text-white/40">
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
       </label>
       <input
         type={type} name={name} defaultValue={defaultValue} required={required}
         placeholder={placeholder} step={step} min={min}
-        className={`w-full border bg-zinc-800 px-4 py-2.5 font-inter text-sm text-white placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
-          error ? 'border-red-500/50' : 'border-white/10'
+        className={`w-full border bg-zinc-200 dark:bg-zinc-800 px-4 py-2.5 font-inter text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
+          error ? 'border-red-500/50' : 'border-zinc-200 dark:border-white/10'
         }`}
       />
       {error && <p className="mt-1 font-inter text-[10px] text-red-400">{error}</p>}
@@ -363,14 +363,14 @@ export default function GameForm({
 
           {/* Título */}
           <div>
-            <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-white/40">
+            <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-zinc-500 dark:text-white/40">
               Título <span className="text-red-500">*</span>
             </label>
             <input
               ref={titleRef} type="text" name="title" defaultValue={game?.title}
               required placeholder="Ej: Cyberpunk 2077"
-              className={`w-full border bg-zinc-800 px-4 py-2.5 font-inter text-sm text-white placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
-                state?.errors?.title ? 'border-red-500/50' : 'border-white/10'
+              className={`w-full border bg-zinc-200 dark:bg-zinc-800 px-4 py-2.5 font-inter text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
+                state?.errors?.title ? 'border-red-500/50' : 'border-zinc-200 dark:border-white/10'
               }`}
             />
             {state?.errors?.title && (
@@ -380,15 +380,15 @@ export default function GameForm({
 
           {/* Slug */}
           <div>
-            <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-white/40">
+            <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-zinc-500 dark:text-white/40">
               Slug <span className="text-red-500">*</span>
-              {!game && <span className="ml-2 normal-case tracking-normal text-white/20">· auto</span>}
+              {!game && <span className="ml-2 normal-case tracking-normal text-zinc-300 dark:text-white/20">· auto</span>}
             </label>
             <input
               ref={slugRef} type="text" name="slug" defaultValue={game?.slug}
               required pattern={"[a-z0-9\\-]+"} placeholder="ej: cyberpunk-2077"
-              className={`w-full border bg-zinc-800 px-4 py-2.5 font-inter text-sm text-white placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
-                state?.errors?.slug ? 'border-red-500/50' : 'border-white/10'
+              className={`w-full border bg-zinc-200 dark:bg-zinc-800 px-4 py-2.5 font-inter text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/20 outline-none transition-colors focus:border-red-500/40 ${
+                state?.errors?.slug ? 'border-red-500/50' : 'border-zinc-200 dark:border-white/10'
               }`}
             />
             {state?.errors?.slug && (
@@ -398,13 +398,13 @@ export default function GameForm({
 
           {/* Descripción */}
           <div>
-            <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-white/40">
+            <label className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-zinc-500 dark:text-white/40">
               Descripción
             </label>
             <textarea
               name="description" defaultValue={game?.description} rows={5}
               placeholder="Descripción del juego…"
-              className="w-full resize-none border border-white/10 bg-zinc-800 px-4 py-2.5 font-inter text-sm text-white placeholder-white/20 outline-none transition-colors focus:border-red-500/40"
+              className="w-full resize-none border border-zinc-200 dark:border-white/10 bg-zinc-200 dark:bg-zinc-800 px-4 py-2.5 font-inter text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/20 outline-none transition-colors focus:border-red-500/40"
             />
           </div>
 
@@ -460,11 +460,11 @@ export default function GameForm({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center gap-5 border-t border-white/10 pt-6">
+      <div className="flex items-center gap-5 border-t border-zinc-200 dark:border-white/10 pt-6">
         <SubmitButton label={submitLabel} />
         <a
           href="/admin/games"
-          className="font-inter text-[10px] uppercase tracking-widest text-white/40 transition-colors hover:text-white/60"
+          className="font-inter text-[10px] uppercase tracking-widest text-zinc-500 dark:text-white/40 transition-colors hover:text-zinc-700 dark:hover:text-zinc-500 dark:text-white/60"
         >
           Cancelar
         </a>

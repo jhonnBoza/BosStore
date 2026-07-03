@@ -33,9 +33,9 @@ export default async function AdminGamesPage() {
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-podium text-3xl uppercase tracking-tight text-white">Juegos</h1>
+          <h1 className="font-podium text-3xl uppercase tracking-tight text-zinc-900 dark:text-white">Juegos</h1>
           <div className="mt-1.5 flex flex-wrap gap-4">
-            <span className="font-inter text-[10px] uppercase tracking-widest text-white/30">
+            <span className="font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/30">
               {games.length} total
             </span>
             {inStock > 0 && (
@@ -57,7 +57,7 @@ export default async function AdminGamesPage() {
         </div>
         <Link
           href="/admin/games/new"
-          className="flex items-center gap-2 bg-red-600 px-5 py-2.5 font-inter text-xs uppercase tracking-widest text-white transition-colors hover:bg-red-700"
+          className="flex items-center gap-2 bg-red-600 px-5 py-2.5 font-inter text-xs uppercase tracking-widest text-zinc-900 dark:text-white transition-colors hover:bg-red-700"
         >
           <Plus className="h-3.5 w-3.5" />
           Nuevo juego
@@ -65,8 +65,8 @@ export default async function AdminGamesPage() {
       </div>
 
       <Suspense fallback={
-        <div className="border border-white/5 py-16 text-center">
-          <p className="font-inter text-sm text-white/25">Cargando juegos…</p>
+        <div className="border border-zinc-200 dark:border-white/5 py-16 text-center">
+          <p className="font-inter text-sm text-zinc-400 dark:text-white/25">Cargando juegos…</p>
         </div>
       }>
         <GamesTable games={games} />

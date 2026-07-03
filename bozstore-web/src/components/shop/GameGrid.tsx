@@ -61,7 +61,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
         <div className="mb-8 flex flex-col gap-3">
           {anySale && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 font-inter text-[10px] uppercase tracking-widest text-white/40">
+              <span className="mr-1 font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/40">
                 Ofertas
               </span>
               <button
@@ -69,7 +69,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
                 className={`inline-flex items-center gap-1.5 border px-3 py-1 font-inter text-[10px] uppercase tracking-widest transition-colors ${
                   activeSale
                     ? 'border-red-600 bg-red-600 text-white'
-                    : 'border-white/15 text-white/60 hover:border-white/30 hover:text-white'
+                    : 'border-zinc-300 text-zinc-500 hover:border-zinc-500 hover:text-zinc-900 dark:border-white/15 dark:text-white/60 dark:hover:border-white/30 dark:hover:text-white'
                 }`}
               >
                 <Tag className="h-3 w-3" />
@@ -79,7 +79,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
           )}
           {genres.length > 1 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 font-inter text-[10px] uppercase tracking-widest text-white/40">
+              <span className="mr-1 font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/40">
                 Género
               </span>
               {genres.map(genre => (
@@ -89,7 +89,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
                   className={`border px-3 py-1 font-inter text-[10px] uppercase tracking-widest transition-colors ${
                     activeGenre === genre
                       ? 'border-red-600 bg-red-600 text-white'
-                      : 'border-white/15 text-white/60 hover:border-white/30 hover:text-white'
+                      : 'border-zinc-300 text-zinc-500 hover:border-zinc-500 hover:text-zinc-900 dark:border-white/15 dark:text-white/60 dark:hover:border-white/30 dark:hover:text-white'
                   }`}
                 >
                   {genre === ALL ? 'Todos' : genre}
@@ -100,7 +100,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
 
           {platforms.length > 1 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 font-inter text-[10px] uppercase tracking-widest text-white/40">
+              <span className="mr-1 font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/40">
                 Plataforma
               </span>
               {platforms.map(platform => (
@@ -110,7 +110,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
                   className={`border px-3 py-1 font-inter text-[10px] uppercase tracking-widest transition-colors ${
                     activePlatform === platform
                       ? 'border-red-600 bg-red-600 text-white'
-                      : 'border-white/15 text-white/60 hover:border-white/30 hover:text-white'
+                      : 'border-zinc-300 text-zinc-500 hover:border-zinc-500 hover:text-zinc-900 dark:border-white/15 dark:text-white/60 dark:hover:border-white/30 dark:hover:text-white'
                   }`}
                 >
                   {platform === ALL ? 'Todas' : platform}
@@ -122,7 +122,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
       )}
 
       {/* Contador */}
-      <p className="mb-6 font-inter text-xs uppercase tracking-widest text-white/40">
+      <p className="mb-6 font-inter text-xs uppercase tracking-widest text-zinc-400 dark:text-white/40">
         {filtered.length} {filtered.length === 1 ? 'juego' : 'juegos'}
       </p>
 
@@ -135,10 +135,10 @@ export default function GameGrid({ games }: { games: Game[] }) {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-28 text-center">
-          <span className="select-none font-podium text-8xl uppercase text-white/5">
+          <span className="select-none font-podium text-8xl uppercase text-zinc-200 dark:text-white/5">
             Sin juegos
           </span>
-          <p className="mt-6 font-inter text-sm text-white/40">
+          <p className="mt-6 font-inter text-sm text-zinc-400 dark:text-white/40">
             {games.length > 0
               ? 'Ningún juego coincide con los filtros activos.'
               : 'El catálogo está vacío. Agrega juegos desde el panel admin.'}
@@ -146,7 +146,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
           {games.length > 0 && (
             <button
               onClick={clearFilters}
-              className="mt-6 border border-white/15 px-6 py-2.5 font-inter text-[10px] uppercase tracking-widest text-white/60 transition-colors hover:border-white/30 hover:text-white"
+              className="mt-6 border border-zinc-300 px-6 py-2.5 font-inter text-[10px] uppercase tracking-widest text-zinc-500 transition-colors hover:border-zinc-500 hover:text-zinc-900 dark:border-white/15 dark:text-white/60 dark:hover:border-white/30 dark:hover:text-white"
             >
               Limpiar filtros
             </button>

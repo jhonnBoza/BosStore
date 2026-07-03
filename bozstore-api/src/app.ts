@@ -9,7 +9,17 @@ import { errorHandler } from './middlewares/errorHandler'
 const app = express()
 
 // Seguridad
-app.use(helmet())
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc:  ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
+      styleSrc:   ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
+      imgSrc:     ["'self'", 'data:', 'cdn.jsdelivr.net'],
+      workerSrc:  ["'self'", 'blob:'],
+    },
+  },
+}))
 app.use(cors({ origin: env.FRONTEND_URL, credentials: true }))
 
 // Logging

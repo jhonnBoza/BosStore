@@ -29,9 +29,22 @@ export async function generateMetadata(props: {
   const { slug } = await props.params
   const game     = await fetchGame(slug)
   if (!game) return { title: 'Juego no encontrado — BosStore' }
+  const description = game.description ?? `Compra ${game.title} en BosStore. Entrega digital instantánea.`
   return {
     title:       `${game.title} — BosStore`,
-    description: game.description ?? `Compra ${game.title} en BosStore.`,
+    description,
+    openGraph: {
+      title:       `${game.title} — BosStore`,
+      description,
+      type:        'website',
+      ...(game.cover_url && { images: [{ url: game.cover_url, width: 600, height: 800, alt: game.title }] }),
+    },
+    twitter: {
+      card:        'summary_large_image',
+      title:       `${game.title} — BosStore`,
+      description,
+      ...(game.cover_url && { images: [game.cover_url] }),
+    },
   }
 }
 
@@ -46,8 +59,30 @@ export default async function GameDetailPage(props: {
   const onSale  = hasDiscount(game)
   const price   = finalPrice(game)
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoGame',
+    name: game.title,
+    description: game.description ?? undefined,
+    genre: game.genre ?? undefined,
+    gamePlatform: game.platform ?? undefined,
+    author: game.developer ? { '@type': 'Organization', name: game.developer } : undefined,
+    offers: {
+      '@type': 'Offer',
+      price: price.toFixed(2),
+      priceCurrency: 'PEN',
+      availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      seller: { '@type': 'Organization', name: 'BosStore' },
+    },
+    ...(game.cover_url && { image: game.cover_url }),
+  }
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero con imagen de fondo desenfocada */}
       <div className="relative min-h-[420px] overflow-hidden bg-zinc-950 sm:h-[55vh]">
         {game.cover_url && (

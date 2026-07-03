@@ -13,7 +13,7 @@ export default function CartIcon() {
       type="button"
       onClick={toggleCart}
       aria-label={`Carrito${count > 0 ? ` (${count} artículos)` : ''}`}
-      className="relative p-2.5 text-white/60 transition-colors hover:text-white"
+      className="relative p-2.5 text-zinc-500 transition-colors hover:text-zinc-900 dark:text-white/60 dark:hover:text-white"
     >
       <ShoppingCart className="h-5 w-5" />
       {count > 0 && (

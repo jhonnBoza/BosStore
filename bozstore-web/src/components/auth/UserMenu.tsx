@@ -2,16 +2,17 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { ChevronDown, LogOut, User } from 'lucide-react'
+import { ChevronDown, LayoutDashboard, LogOut, User } from 'lucide-react'
 import LogoutButton from '@/components/auth/LogoutButton'
 
 type Props = {
   email: string
   full_name?: string | null
   avatar_url?: string | null
+  isAdmin?: boolean
 }
 
-export default function UserMenu({ email, full_name, avatar_url }: Props) {
+export default function UserMenu({ email, full_name, avatar_url, isAdmin }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -62,6 +63,13 @@ export default function UserMenu({ email, full_name, avatar_url }: Props) {
           </div>
 
           <div className="py-1">
+            {isAdmin && (
+              <Link href="/admin" onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 font-inter text-xs text-red-400 transition-colors hover:bg-white/5 hover:text-red-300">
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                Panel Admin
+              </Link>
+            )}
             <Link href="/account" onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 font-inter text-xs text-white/55 transition-colors hover:bg-white/5 hover:text-white/90">
               <User className="h-3.5 w-3.5" />

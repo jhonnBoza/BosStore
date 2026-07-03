@@ -18,8 +18,7 @@ export const metadata: Metadata = {
   description: 'Los mejores títulos al precio justo. Entrega digital instantánea.',
 }
 
-// Link directo al video de fondo del hero (.mp4)
-const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260606_154941_df1a96e1-a06f-450c-bd02-d863414cc1a0.mp4'
+const VIDEO_URL = process.env.NEXT_PUBLIC_HERO_VIDEO_URL ?? ''
 
 async function getGames(): Promise<Game[]> {
   const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
@@ -34,12 +33,12 @@ async function getGames(): Promise<Game[]> {
 }
 
 const GENRES = [
-  { label: 'RPG',        icon: Sword,      q: 'RPG',        grad: 'from-purple-500/15 to-zinc-900/40', border: 'border-purple-400/20', text: 'text-purple-400' },
-  { label: 'FPS',        icon: Target,     q: 'FPS',        grad: 'from-sky-500/15 to-zinc-900/40',    border: 'border-sky-400/20',    text: 'text-sky-400'    },
-  { label: 'Deportes',   icon: Trophy,     q: 'Deportes',   grad: 'from-amber-500/15 to-zinc-900/40',  border: 'border-amber-400/20',  text: 'text-amber-400'  },
-  { label: 'Aventura',   icon: Compass,    q: 'Aventura',   grad: 'from-blue-500/15 to-zinc-900/40',   border: 'border-blue-400/20',   text: 'text-blue-400'   },
-  { label: 'Estrategia', icon: LayoutGrid, q: 'Estrategia', grad: 'from-emerald-500/15 to-zinc-900/40',border: 'border-emerald-400/20',text: 'text-emerald-400'},
-  { label: 'Lucha',      icon: Swords,     q: 'Lucha',      grad: 'from-rose-500/15 to-zinc-900/40',   border: 'border-rose-400/20',   text: 'text-rose-400'   },
+  { label: 'RPG',        icon: Sword,      q: 'RPG',        grad: 'from-purple-50 to-purple-100 dark:from-purple-500/15 dark:to-zinc-900/40',     border: 'border-purple-200 dark:border-purple-400/20',   text: 'text-purple-500 dark:text-purple-400' },
+  { label: 'FPS',        icon: Target,     q: 'FPS',        grad: 'from-sky-50 to-sky-100 dark:from-sky-500/15 dark:to-zinc-900/40',              border: 'border-sky-200 dark:border-sky-400/20',         text: 'text-sky-500 dark:text-sky-400'       },
+  { label: 'Deportes',   icon: Trophy,     q: 'Deportes',   grad: 'from-amber-50 to-amber-100 dark:from-amber-500/15 dark:to-zinc-900/40',        border: 'border-amber-200 dark:border-amber-400/20',     text: 'text-amber-500 dark:text-amber-400'   },
+  { label: 'Aventura',   icon: Compass,    q: 'Aventura',   grad: 'from-blue-50 to-blue-100 dark:from-blue-500/15 dark:to-zinc-900/40',           border: 'border-blue-200 dark:border-blue-400/20',       text: 'text-blue-500 dark:text-blue-400'     },
+  { label: 'Estrategia', icon: LayoutGrid, q: 'Estrategia', grad: 'from-emerald-50 to-emerald-100 dark:from-emerald-500/15 dark:to-zinc-900/40',  border: 'border-emerald-200 dark:border-emerald-400/20', text: 'text-emerald-500 dark:text-emerald-400'},
+  { label: 'Lucha',      icon: Swords,     q: 'Lucha',      grad: 'from-rose-50 to-rose-100 dark:from-rose-500/15 dark:to-zinc-900/40',           border: 'border-rose-200 dark:border-rose-400/20',       text: 'text-rose-500 dark:text-rose-400'     },
 ]
 
 const FEATURES = [
@@ -76,70 +75,56 @@ export default async function LandingPage() {
         email: user.email ?? '',
         full_name: (user.user_metadata?.full_name as string | null | undefined) ?? null,
         avatar_url: (user.user_metadata?.avatar_url as string | null | undefined) ?? null,
+        isAdmin: user.app_metadata?.role === 'admin',
       }
     : null
 
-  const spotlight = games.find((g) => g.cover_url) ?? games[0] ?? null
-  const tickerBase = games.length > 0
-    ? games.map((g) => g.title.toUpperCase()).join(' · ')
-    : TICKER_FALLBACK
-
+  const spotlight    = games.find((g) => g.cover_url) ?? games[0] ?? null
+  const tickerBase   = games.length > 0 ? games.map((g) => g.title.toUpperCase()).join(' · ') : TICKER_FALLBACK
   const popularGames = games.slice(0, 5)
   const offerGames   = games.filter(hasDiscount).slice(0, 3)
 
   return (
-    <div className="bg-zinc-950 text-white">
+    <div className="bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
+
+      <Navbar user={navUser} />
 
       {/* HERO */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* Fondo: video > portada del juego destacado > gradiente oscuro */}
+      <section className="relative h-screen w-full overflow-hidden bg-zinc-100 dark:bg-zinc-950">
         {VIDEO_URL ? (
-          <video
-            autoPlay muted loop playsInline
-            className="absolute inset-0 h-full w-full object-cover opacity-45"
-          >
+          <video autoPlay muted loop playsInline
+            className="absolute inset-0 h-full w-full object-cover opacity-100 dark:opacity-45">
             <source src={VIDEO_URL} type="video/mp4" />
           </video>
         ) : spotlight?.cover_url ? (
-          <Image
-            src={spotlight.cover_url}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="absolute inset-0 object-cover object-center scale-105"
-            aria-hidden
-          />
+          <Image src={spotlight.cover_url} alt="" fill priority sizes="100vw"
+            className="absolute inset-0 object-cover object-center scale-105 opacity-20 dark:opacity-60" aria-hidden />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-100 via-zinc-50 to-white dark:from-zinc-900 dark:via-zinc-950 dark:to-black" />
         )}
 
-        {/* Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/30 dark:from-black/50 dark:via-black/20 dark:to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-transparent dark:from-black/60 dark:via-transparent dark:to-transparent" />
 
         <div className="relative z-10 flex h-full flex-col">
-          <Navbar user={navUser} />
-
-          <main className="flex flex-1 flex-col justify-center px-6 pb-20 sm:px-10 lg:px-16">
+          <main className="flex flex-1 flex-col justify-center px-6 pb-20 pt-20 sm:px-10 lg:px-16">
             <div className="animate-fade-up mb-5 flex items-center gap-3">
               <Gamepad2 className="h-4 w-4 text-red-500" />
-              <span className="font-inter text-[10px] uppercase tracking-[0.35em] text-white/50 sm:text-xs">
+              <span className="font-inter text-[10px] uppercase tracking-[0.35em] text-zinc-400 dark:text-white/50 sm:text-xs">
                 Tu tienda de videojuegos
               </span>
             </div>
 
             <h1 className="animate-fade-up-delay-1 font-podium uppercase leading-[0.88] tracking-tight">
-              <span className="block text-[clamp(3.2rem,9.5vw,8.5rem)] text-white">Juega.</span>
-              <span className="block text-[clamp(3.2rem,9.5vw,8.5rem)] text-white">Compra.</span>
-              <span className="block text-[clamp(3.2rem,9.5vw,8.5rem)] text-red-600">Conquista.</span>
+              <span className="block text-[clamp(3.2rem,9.5vw,8.5rem)] text-zinc-900 dark:text-white">Juega.</span>
+              <span className="block text-[clamp(3.2rem,9.5vw,8.5rem)] text-zinc-900 dark:text-white">Compra.</span>
+              <span className="block text-[clamp(3.2rem,9.5vw,8.5rem)] text-red-600 [-webkit-text-stroke:0.5px_black] dark:[-webkit-text-stroke:0px]">Conquista.</span>
             </h1>
 
-            <p className="animate-fade-up-delay-2 mt-6 max-w-lg font-inter text-sm leading-relaxed text-white/55 sm:text-[15px] lg:mt-8">
+            <p className="animate-fade-up-delay-2 mt-6 max-w-lg font-inter text-sm leading-relaxed text-zinc-500 dark:text-white/55 sm:text-[15px] lg:mt-8">
               Los mejores títulos al precio justo.{' '}
-              <span className="font-semibold text-white">Descarga digital instantánea.</span>
-              <br />
-              Catálogo en constante crecimiento.
+              <span className="font-semibold text-zinc-800 dark:text-white">Descarga digital instantánea.</span>
+              <br />Catálogo en constante crecimiento.
             </p>
 
             <div className="animate-fade-up-delay-3 mt-8 flex flex-wrap items-center gap-3 lg:mt-10">
@@ -150,15 +135,13 @@ export default async function LandingPage() {
               </Link>
               {navUser ? (
                 <Link href="/account"
-                  className="inline-flex items-center gap-2 border border-white/20 px-7 py-4 font-inter text-[11px] uppercase tracking-widest text-white/70 backdrop-blur transition-colors hover:border-white/40 hover:text-white">
-                  <Library className="h-3.5 w-3.5" />
-                  Mi biblioteca
+                  className="inline-flex items-center gap-2 border border-zinc-300 px-7 py-4 font-inter text-[11px] uppercase tracking-widest text-zinc-600 transition-colors hover:border-zinc-500 hover:text-zinc-900 dark:border-white/20 dark:text-white/70 dark:hover:border-white/40 dark:hover:text-white">
+                  <Library className="h-3.5 w-3.5" /> Mi biblioteca
                 </Link>
               ) : (
                 <Link href="/register"
-                  className="inline-flex items-center gap-2 border border-white/20 px-7 py-4 font-inter text-[11px] uppercase tracking-widest text-white/70 backdrop-blur transition-colors hover:border-white/40 hover:text-white">
-                  <LogIn className="h-3.5 w-3.5" />
-                  Crear cuenta
+                  className="inline-flex items-center gap-2 border border-zinc-800 bg-white/90 px-7 py-4 font-inter text-[11px] uppercase tracking-widest text-zinc-900 transition-colors hover:bg-white hover:border-zinc-900 dark:border-white/20 dark:bg-transparent dark:text-white/70 dark:hover:border-white/40 dark:hover:text-white">
+                  <LogIn className="h-3.5 w-3.5" /> Crear cuenta
                 </Link>
               )}
             </div>
@@ -166,31 +149,29 @@ export default async function LandingPage() {
             <div className="animate-fade-up-delay-4 mt-10 flex flex-wrap gap-10 lg:mt-14 lg:gap-16">
               {STATS.map((s) => (
                 <div key={s.label}>
-                  <p className="font-podium text-4xl uppercase text-white sm:text-5xl lg:text-6xl">{s.value}</p>
-                  <p className="mt-1 font-inter text-[9px] uppercase tracking-widest text-white/35 sm:text-[10px]">{s.label}</p>
+                  <p className="font-podium text-4xl uppercase text-zinc-900 dark:text-white sm:text-5xl lg:text-6xl">{s.value}</p>
+                  <p className="mt-1 font-inter text-[9px] uppercase tracking-widest text-zinc-400 dark:text-white/35 sm:text-[10px]">{s.label}</p>
                 </div>
               ))}
             </div>
           </main>
         </div>
 
-        {/* Scroll hint */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="h-8 w-5 rounded-full border border-white/20 p-1">
-            <div className="mx-auto h-2 w-0.5 rounded-full bg-white/30" />
+          <div className="h-8 w-5 rounded-full border border-zinc-300 p-1 dark:border-white/20">
+            <div className="mx-auto h-2 w-0.5 rounded-full bg-zinc-400 dark:bg-white/30" />
           </div>
         </div>
       </section>
 
       {/* MARQUEE */}
-      <div className="overflow-hidden border-y border-white/5 bg-zinc-900/60 py-4">
+      <div className="overflow-hidden border-y border-zinc-200 bg-zinc-100 py-4 dark:border-white/5 dark:bg-zinc-900/60">
         <div className="animate-marquee flex whitespace-nowrap">
           {[tickerBase, tickerBase].map((chunk, ci) => (
-            <span key={ci}
-              className="flex shrink-0 items-center font-inter text-[10px] uppercase tracking-[0.22em] text-white/20">
+            <span key={ci} className="flex shrink-0 items-center font-inter text-[10px] uppercase tracking-[0.22em] text-zinc-400 dark:text-white/20">
               {chunk.split(' · ').map((t, i) => (
                 <span key={i} className="flex items-center">
-                  <span className="px-5 text-red-600/50">◆</span>
+                  <span className="px-5 text-red-500/50 dark:text-red-600/50">◆</span>
                   <span>{t}</span>
                 </span>
               ))}
@@ -201,24 +182,23 @@ export default async function LandingPage() {
 
       {/* JUEGOS POPULARES */}
       {popularGames.length > 0 && (
-        <section className="border-t border-white/5 bg-zinc-900/40 py-10 sm:py-14">
+        <section className="border-t border-zinc-200 bg-zinc-50 py-10 dark:border-white/5 dark:bg-zinc-900/40 sm:py-14">
           <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-podium text-3xl uppercase tracking-tight text-white sm:text-4xl">Juegos Populares</h2>
+              <h2 className="font-podium text-3xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-4xl">Juegos Populares</h2>
               <Link href="/games"
-                className="group flex items-center gap-1 font-inter text-[10px] uppercase tracking-widest text-white/40 transition-colors hover:text-red-500">
+                className="group flex items-center gap-1 font-inter text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:text-red-500 dark:text-white/40">
                 Ver todos <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </div>
 
-            <div className="flex flex-col gap-3 lg:flex-row lg:h-[420px]">
+            <div className="flex flex-col gap-3 lg:h-[420px] lg:flex-row">
               {popularGames[0] && (
                 <Link href={`/games/${popularGames[0].slug}`}
-                  className="group relative overflow-hidden bg-zinc-900 border border-white/5 lg:w-[48%] shrink-0 h-72 lg:h-auto">
+                  className="group relative h-72 shrink-0 overflow-hidden border border-zinc-200 bg-zinc-100 dark:border-white/5 dark:bg-zinc-900 lg:h-auto lg:w-[48%]">
                   <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
                     {(popularGames[0].genre ?? '').split('/').filter(Boolean).map((g) => (
-                      <span key={g.trim()}
-                        className="border border-white/20 bg-black/60 px-2 py-0.5 font-inter text-[9px] uppercase tracking-wider text-white/60 backdrop-blur-sm">
+                      <span key={g.trim()} className="border border-white/20 bg-black/60 px-2 py-0.5 font-inter text-[9px] uppercase tracking-wider text-white/60 backdrop-blur-sm">
                         {g.trim()}
                       </span>
                     ))}
@@ -228,13 +208,13 @@ export default async function LandingPage() {
                       sizes="(max-width:1024px) 100vw, 48vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
-                      <span className="font-podium text-6xl uppercase text-white/5">{popularGames[0].title.slice(0, 2)}</span>
+                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-900">
+                      <span className="font-podium text-6xl uppercase text-zinc-200 dark:text-white/5">{popularGames[0].title.slice(0, 2)}</span>
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="font-inter text-sm font-bold text-white leading-tight">{popularGames[0].title}</p>
+                    <p className="font-inter text-sm font-bold leading-tight text-white">{popularGames[0].title}</p>
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <Monitor className="h-3.5 w-3.5 text-white/35" />
@@ -253,26 +233,26 @@ export default async function LandingPage() {
               <div className="grid flex-1 grid-cols-2 gap-3">
                 {popularGames.slice(1, 5).map((game) => (
                   <Link key={game.id} href={`/games/${game.slug}`}
-                    className="group flex flex-col overflow-hidden border border-white/5 bg-zinc-900">
-                    <div className="relative flex-1 min-h-[90px] overflow-hidden">
+                    className="group flex flex-col overflow-hidden border border-zinc-200 bg-white dark:border-white/5 dark:bg-zinc-900">
+                    <div className="relative min-h-[90px] flex-1 overflow-hidden">
                       {(game.banner_url ?? game.cover_url) ? (
                         <Image src={game.banner_url ?? game.cover_url!} alt={game.title} fill
                           sizes="(max-width:640px) 50vw, 25vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-105" />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
-                          <span className="font-podium text-4xl uppercase text-white/5">{game.title.slice(0, 2)}</span>
+                        <div className="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-900">
+                          <span className="font-podium text-4xl uppercase text-zinc-200 dark:text-white/5">{game.title.slice(0, 2)}</span>
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center justify-between border-t border-white/5 bg-zinc-900 px-3 py-2.5">
+                    <div className="flex items-center justify-between border-t border-zinc-100 bg-white px-3 py-2.5 dark:border-white/5 dark:bg-zinc-900">
                       <div className="min-w-0">
-                        <p className="font-inter text-[11px] font-semibold text-white truncate leading-tight">{game.title}</p>
+                        <p className="truncate font-inter text-[11px] font-semibold leading-tight text-zinc-900 dark:text-white">{game.title}</p>
                         {game.platform && (
-                          <p className="mt-0.5 font-inter text-[9px] text-white/35">{game.platform}</p>
+                          <p className="mt-0.5 font-inter text-[9px] text-zinc-400 dark:text-white/35">{game.platform}</p>
                         )}
                       </div>
-                      <span className="ml-2 shrink-0 font-inter text-[11px] font-bold text-white">
+                      <span className="ml-2 shrink-0 font-inter text-[11px] font-bold text-zinc-900 dark:text-white">
                         {formatPrice(finalPrice(game))}
                       </span>
                     </div>
@@ -286,37 +266,37 @@ export default async function LandingPage() {
 
       {/* OFERTAS DESTACADAS */}
       {offerGames.length > 0 && (
-        <section className="border-t border-white/5 py-10 sm:py-14">
+        <section className="border-t border-zinc-200 py-10 dark:border-white/5 sm:py-14">
           <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
             <div className="mb-6 flex items-start justify-between">
               <div>
-                <h2 className="font-podium text-3xl uppercase tracking-tight text-white sm:text-4xl">Ofertas Destacadas</h2>
-                <p className="mt-1 font-inter text-xs text-white/35">Descuentos activos por tiempo limitado</p>
+                <h2 className="font-podium text-3xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-4xl">Ofertas Destacadas</h2>
+                <p className="mt-1 font-inter text-xs text-zinc-400 dark:text-white/35">Descuentos activos por tiempo limitado</p>
               </div>
               <Link href="/ofertas"
-                className="group flex shrink-0 items-center gap-1 font-inter text-[10px] uppercase tracking-widest text-white/40 transition-colors hover:text-red-500">
+                className="group flex shrink-0 items-center gap-1 font-inter text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:text-red-500 dark:text-white/40">
                 Ver todas <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {offerGames.map((game) => (
                 <Link key={game.id} href={`/games/${game.slug}`}
-                  className="group flex gap-3 border border-white/5 bg-zinc-900/40 p-3 transition-all hover:border-red-600/20 hover:bg-zinc-900/70">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden bg-zinc-800">
+                  className="group flex gap-3 border border-zinc-200 bg-zinc-50 p-3 transition-all hover:border-red-400/30 hover:bg-zinc-100 dark:border-white/5 dark:bg-zinc-900/40 dark:hover:border-red-600/20 dark:hover:bg-zinc-900/70">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden bg-zinc-200 dark:bg-zinc-800">
                     {game.cover_url && (
                       <Image src={game.cover_url} alt={game.title} fill sizes="64px" className="object-cover" />
                     )}
                   </div>
                   <div className="flex min-w-0 flex-col justify-center gap-1">
-                    <p className="truncate font-inter text-xs font-semibold text-white/90">{game.title}</p>
+                    <p className="truncate font-inter text-xs font-semibold text-zinc-900 dark:text-white/90">{game.title}</p>
                     <div className="flex items-center gap-2">
-                      <span className="bg-red-600/20 px-1.5 py-0.5 font-inter text-[9px] font-bold text-red-400">
+                      <span className="bg-red-100 px-1.5 py-0.5 font-inter text-[9px] font-bold text-red-600 dark:bg-red-600/20 dark:text-red-400">
                         -{game.discount_percent}%
                       </span>
-                      <span className="font-inter text-[10px] text-white/25 line-through">
+                      <span className="font-inter text-[10px] text-zinc-400 line-through dark:text-white/25">
                         {formatPrice(game.price)}
                       </span>
-                      <span className="font-inter text-sm font-bold text-white">
+                      <span className="font-inter text-sm font-bold text-zinc-900 dark:text-white">
                         {formatPrice(finalPrice(game))}
                       </span>
                     </div>
@@ -329,19 +309,19 @@ export default async function LandingPage() {
       )}
 
       {/* GÉNEROS */}
-      <section className="border-t border-white/5 bg-zinc-900/40 py-20 sm:py-28">
+      <section className="border-t border-zinc-200 bg-zinc-50 py-20 dark:border-white/5 dark:bg-zinc-900/40 sm:py-28">
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
           <div className="mb-10">
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">Explora por categoría</p>
-            <h2 className="font-podium text-4xl uppercase tracking-tight sm:text-5xl">Géneros</h2>
+            <h2 className="font-podium text-4xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-5xl">Géneros</h2>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {GENRES.map(({ label, icon: Icon, q, grad, border, text }) => (
               <Link key={label} href={`/games?genre=${encodeURIComponent(q)}`}
                 className={`group relative overflow-hidden border ${border} bg-gradient-to-br ${grad} p-6 transition-all hover:-translate-y-0.5 hover:shadow-md`}>
                 <Icon className={`mb-3 h-6 w-6 ${text} transition-transform duration-300 group-hover:scale-110`} />
-                <p className="font-podium text-sm uppercase tracking-wide text-white/80">{label}</p>
-                <ArrowUpRight className="absolute bottom-3 right-3 h-3 w-3 text-white/15 transition-all group-hover:text-red-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <p className="font-podium text-sm uppercase tracking-wide text-zinc-900 dark:text-white/80">{label}</p>
+                <ArrowUpRight className="absolute bottom-3 right-3 h-3 w-3 text-zinc-400 transition-all group-hover:text-red-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-white/15" />
               </Link>
             ))}
           </div>
@@ -349,19 +329,19 @@ export default async function LandingPage() {
       </section>
 
       {/* PLATAFORMAS */}
-      <section className="border-t border-white/5 bg-zinc-900/40 py-20 sm:py-28">
+      <section className="border-t border-zinc-200 bg-zinc-50 py-20 dark:border-white/5 dark:bg-zinc-900/40 sm:py-28">
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
           <div className="mb-10 text-center">
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">Compatible con</p>
-            <h2 className="font-podium text-4xl uppercase tracking-tight sm:text-5xl">Tus plataformas</h2>
+            <h2 className="font-podium text-4xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-5xl">Tus plataformas</h2>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {PLATFORMS.map(({ name, icon: Icon, desc }) => (
               <div key={name}
-                className="group flex flex-col items-center border border-white/5 bg-zinc-900/40 p-8 text-center transition-all hover:border-red-600/20 hover:shadow-md">
-                <Icon className="mb-4 h-8 w-8 text-white/20 transition-colors group-hover:text-red-500" />
-                <p className="font-podium text-sm uppercase tracking-wide text-white/80">{name}</p>
-                <p className="mt-1 font-inter text-[10px] text-white/35">{desc}</p>
+                className="group flex flex-col items-center border border-zinc-200 bg-white p-8 text-center transition-all hover:border-red-400/30 hover:shadow-md dark:border-white/5 dark:bg-zinc-900/40 dark:hover:border-red-600/20">
+                <Icon className="mb-4 h-8 w-8 text-zinc-300 transition-colors group-hover:text-red-500 dark:text-white/20" />
+                <p className="font-podium text-sm uppercase tracking-wide text-zinc-800 dark:text-white/80">{name}</p>
+                <p className="mt-1 font-inter text-[10px] text-zinc-400 dark:text-white/35">{desc}</p>
               </div>
             ))}
           </div>
@@ -369,20 +349,20 @@ export default async function LandingPage() {
       </section>
 
       {/* ¿POR QUÉ BosStore? */}
-      <section className="border-t border-white/5 py-20 sm:py-28">
+      <section className="border-t border-zinc-200 py-20 dark:border-white/5 sm:py-28">
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
           <div className="mb-12 text-center">
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">La diferencia BosStore</p>
-            <h2 className="font-podium text-4xl uppercase tracking-tight sm:text-5xl">¿Por qué elegirnos?</h2>
+            <h2 className="font-podium text-4xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-5xl">¿Por qué elegirnos?</h2>
           </div>
-          <div className="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-px bg-zinc-200 dark:bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="group bg-zinc-950 p-8 transition-colors hover:bg-zinc-900/60">
+              <div key={title} className="group bg-white p-8 transition-colors hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900/60">
                 <div className="mb-5 inline-flex h-12 w-12 items-center justify-center border border-red-600/20 bg-red-600/10">
                   <Icon className="h-5 w-5 text-red-500" />
                 </div>
-                <h3 className="mb-3 font-podium text-base uppercase tracking-wide">{title}</h3>
-                <p className="font-inter text-sm leading-relaxed text-white/45">{desc}</p>
+                <h3 className="mb-3 font-podium text-base uppercase tracking-wide text-zinc-900 dark:text-white">{title}</h3>
+                <p className="font-inter text-sm leading-relaxed text-zinc-500 dark:text-white/45">{desc}</p>
               </div>
             ))}
           </div>
@@ -404,15 +384,15 @@ export default async function LandingPage() {
       </section>
 
       {/* CTA FINAL */}
-      <section className="border-t border-white/5 py-28 sm:py-36">
+      <section className="border-t border-zinc-200 py-28 dark:border-white/5 sm:py-36">
         <div className="mx-auto max-w-3xl px-6 text-center sm:px-10">
           <p className="mb-3 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">
             {navUser ? 'Bienvenido de vuelta' : 'Únete a la comunidad'}
           </p>
-          <h2 className="font-podium text-5xl uppercase leading-[0.92] tracking-tight sm:text-6xl lg:text-7xl">
+          <h2 className="font-podium text-5xl uppercase leading-[0.92] tracking-tight text-zinc-900 dark:text-white sm:text-6xl lg:text-7xl">
             Tu próxima<br /><span className="text-red-600">partida</span><br />empieza aquí
           </h2>
-          <p className="mx-auto mt-6 max-w-md font-inter text-sm leading-relaxed text-white/45">
+          <p className="mx-auto mt-6 max-w-md font-inter text-sm leading-relaxed text-zinc-500 dark:text-white/45">
             {navUser
               ? 'Cientos de títulos te esperan. Explora el catálogo y encuentra tu próxima aventura.'
               : 'Más de 500 títulos esperándote. Crea tu cuenta gratis y accede al mejor catálogo de videojuegos digitales.'}
@@ -425,7 +405,7 @@ export default async function LandingPage() {
                   Ver catálogo <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
                 <Link href="/account"
-                  className="inline-flex items-center gap-2 border border-white/15 px-8 py-4 font-inter text-xs uppercase tracking-widest text-white/60 transition-colors hover:border-white/30 hover:text-white">
+                  className="inline-flex items-center gap-2 border border-zinc-300 px-8 py-4 font-inter text-xs uppercase tracking-widest text-zinc-500 transition-colors hover:border-zinc-500 hover:text-zinc-900 dark:border-white/15 dark:text-white/60 dark:hover:border-white/30 dark:hover:text-white">
                   <Library className="h-4 w-4" /> Mi biblioteca
                 </Link>
               </>
@@ -436,7 +416,7 @@ export default async function LandingPage() {
                   Crear cuenta gratis <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
                 <Link href="/games"
-                  className="inline-flex items-center gap-2 border border-white/15 px-8 py-4 font-inter text-xs uppercase tracking-widest text-white/60 transition-colors hover:border-white/30 hover:text-white">
+                  className="inline-flex items-center gap-2 border border-zinc-300 px-8 py-4 font-inter text-xs uppercase tracking-widest text-zinc-500 transition-colors hover:border-zinc-500 hover:text-zinc-900 dark:border-white/15 dark:text-white/60 dark:hover:border-white/30 dark:hover:text-white">
                   <Gamepad2 className="h-4 w-4" /> Explorar sin cuenta
                 </Link>
               </>

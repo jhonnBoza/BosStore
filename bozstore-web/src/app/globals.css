@@ -3,31 +3,56 @@
 @tailwind utilities;
 
 @layer base {
-  html,
-  body {
-    height: 100%;
+  :root {
+    --bg:         #ffffff;
+    --bg-surface: #f4f4f5;
+    --bg-card:    #ffffff;
+    --border:     rgba(0,0,0,0.08);
+    --fg:         #09090b;
+    --fg-muted:   rgba(0,0,0,0.45);
+    --fg-subtle:  rgba(0,0,0,0.25);
   }
-  body {
-    margin: 0;
-    background-color: #0a0a0a;
-    color: #ffffff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  .dark {
+    --bg:         #0a0a0a;
+    --bg-surface: #18181b;
+    --bg-card:    #18181b;
+    --border:     rgba(255,255,255,0.08);
+    --fg:         #ffffff;
+    --fg-muted:   rgba(255,255,255,0.45);
+    --fg-subtle:  rgba(255,255,255,0.25);
   }
 
-  /* Evita que el autocompletar de Chrome pinte los inputs de blanco
-     y rompa el tema oscuro. */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active,
-  textarea:-webkit-autofill,
-  textarea:-webkit-autofill:hover,
-  textarea:-webkit-autofill:focus {
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Autofill — dark mode */
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark textarea:-webkit-autofill {
     -webkit-text-fill-color: #ffffff;
     caret-color: #ffffff;
     -webkit-box-shadow: 0 0 0 1000px #18181b inset;
     box-shadow: 0 0 0 1000px #18181b inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
+  /* Autofill — light mode */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill {
+    -webkit-text-fill-color: #09090b;
+    caret-color: #09090b;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+    box-shadow: 0 0 0 1000px #ffffff inset;
     transition: background-color 9999s ease-in-out 0s;
   }
 }

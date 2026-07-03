@@ -91,7 +91,7 @@ export default function LoginForm({
           <div className="mt-2 text-right">
             <Link
               href={forgotHref}
-              className="font-inter text-[10px] uppercase tracking-widest text-white/40 transition-colors hover:text-red-400"
+              className="font-inter text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:text-red-500 dark:text-white/40 dark:hover:text-red-400"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -107,7 +107,7 @@ export default function LoginForm({
 
       <OAuthButtons next={next} disabled={loading} />
 
-      <p className="mt-8 text-center font-inter text-xs text-white/40">
+      <p className="mt-8 text-center font-inter text-xs text-zinc-400 dark:text-white/40">
         ¿No tienes cuenta?{' '}
         <Link
           href={registerHref}

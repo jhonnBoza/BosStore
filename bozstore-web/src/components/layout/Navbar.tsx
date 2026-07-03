@@ -1,15 +1,20 @@
 'use client'
 
-import { useState, type CSSProperties } from 'react'
+import { useState, useEffect, useRef, type CSSProperties } from 'react'
 import Link from 'next/link'
-import { Gamepad2, LogIn, LogOut, X } from 'lucide-react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { Gamepad2, LogIn, LogOut, Search, X } from 'lucide-react'
 import UserMenu from '@/components/auth/UserMenu'
 import LogoutButton from '@/components/auth/LogoutButton'
+import ThemeToggle from '@/components/ui/ThemeToggle'
+import CartIcon from '@/components/cart/CartIcon'
 
 export type NavUser = {
   email: string
   full_name?: string | null
   avatar_url?: string | null
+  isAdmin?: boolean
 } | null
 
 const NAV_LINKS = [
@@ -18,8 +23,69 @@ const NAV_LINKS = [
   { label: 'Ofertas',   href: '/ofertas'   },
 ] as const
 
-export default function Navbar({ user = null }: { user?: NavUser }) {
-  const [menuOpen, setMenuOpen] = useState(false)
+function BrandLogo() {
+  return (
+    <Link href="/" className="flex shrink-0 items-center gap-2.5">
+      <Image
+        src="/logo-dark-sf.png"
+        alt="BosStore"
+        width={40}
+        height={40}
+        className="hidden object-contain dark:block"
+        priority
+      />
+      <Image
+        src="/logo-sin-fondo.png"
+        alt="BosStore"
+        width={40}
+        height={40}
+        className="block object-contain dark:hidden"
+        priority
+      />
+      <span className="font-podium text-2xl font-bold uppercase tracking-wider text-zinc-900 dark:text-white sm:text-3xl">
+        Bos<span className="text-red-600 [-webkit-text-stroke:0.3px_black] dark:[-webkit-text-stroke:0px]">Store</span>
+      </span>
+    </Link>
+  )
+}
+
+export default function Navbar({
+  user = null,
+  showSearch = false,
+  showCart = false,
+}: {
+  user?: NavUser
+  showSearch?: boolean
+  showCart?: boolean
+}) {
+  const [menuOpen, setMenuOpen]     = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [scrollState, setScrollState] = useState<'top' | 'hero' | 'body'>('top')
+  const searchRef = useRef<HTMLInputElement>(null)
+  const router    = useRouter()
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y === 0) setScrollState('top')
+      else if (y < window.innerHeight - 80) setScrollState('hero')
+      else setScrollState('body')
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus()
+  }, [searchOpen])
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const q = (searchRef.current?.value ?? '').trim()
+    router.push(q ? `/games?q=${encodeURIComponent(q)}` : '/games')
+    setSearchOpen(false)
+    if (searchRef.current) searchRef.current.value = ''
+  }
 
   const itemStyle = (i: number): CSSProperties => ({
     transitionProperty: 'opacity, transform',
@@ -31,25 +97,60 @@ export default function Navbar({ user = null }: { user?: NavUser }) {
 
   return (
     <>
-      <header className="flex items-center justify-between px-6 py-5 sm:px-10 lg:px-16 lg:py-7">
-        {/* Brand */}
-        <Link href="/"
-          className="font-podium text-2xl font-bold uppercase tracking-wider text-white sm:text-3xl">
-          Bos<span className="text-red-600">Store</span>
-        </Link>
+      <header className={`fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 transition-all duration-300 sm:px-10 lg:px-16 lg:py-7 ${
+        scrollState === 'body'
+          ? 'border-b border-zinc-200/80 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/95'
+          : scrollState === 'hero'
+          ? 'border-b border-transparent bg-white/10 backdrop-blur-sm dark:bg-black/10'
+          : 'border-b border-transparent bg-transparent'
+      }`}>
+        <BrandLogo />
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-8 md:flex lg:gap-10">
           {NAV_LINKS.map(({ label, href }) => (
             <Link key={label} href={href}
-              className="font-inter text-sm uppercase tracking-widest text-white/70 transition-colors hover:text-white">
+              className="font-inter text-sm uppercase tracking-widest text-zinc-900 transition-colors hover:text-red-600 dark:text-white/70 dark:hover:text-white">
               {label}
             </Link>
           ))}
         </nav>
 
-        {/* Desktop CTAs */}
-        <div className="hidden items-center gap-3 md:flex">
+        {/* Desktop actions */}
+        <div className="hidden items-center gap-2 md:flex">
+          {/* Búsqueda expandible */}
+          {showSearch && (
+            <div className="relative flex items-center">
+              <form
+                onSubmit={handleSearch}
+                className={`flex items-center overflow-hidden transition-all duration-300 ${
+                  searchOpen ? 'w-52' : 'w-0'
+                }`}
+              >
+                <input
+                  ref={searchRef}
+                  name="q"
+                  type="text"
+                  placeholder="Buscar juegos..."
+                  onBlur={() => {
+                    if (!searchRef.current?.value) setSearchOpen(false)
+                  }}
+                  className="w-full border-b border-zinc-300 bg-transparent py-1 pr-2 font-inter text-sm text-zinc-900 placeholder-zinc-400 outline-none dark:border-white/20 dark:text-white dark:placeholder-white/30"
+                />
+              </form>
+              <button
+                type="button"
+                onClick={() => setSearchOpen((v) => !v)}
+                className="flex h-8 w-8 items-center justify-center text-zinc-500 transition-colors hover:text-zinc-900 dark:text-white/60 dark:hover:text-white"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
+          <ThemeToggle />
+          {showCart && <CartIcon />}
+
           {user ? (
             <>
               <Link href="/games"
@@ -57,12 +158,12 @@ export default function Navbar({ user = null }: { user?: NavUser }) {
                 <Gamepad2 className="h-3.5 w-3.5" />
                 Explorar
               </Link>
-              <UserMenu email={user.email} full_name={user.full_name} avatar_url={user.avatar_url} />
+              <UserMenu email={user.email} full_name={user.full_name} avatar_url={user.avatar_url} isAdmin={user.isAdmin} />
             </>
           ) : (
             <>
               <Link href="/login"
-                className="inline-flex items-center gap-2 border border-white/20 px-5 py-2.5 font-inter text-xs uppercase tracking-widest text-white/70 transition-colors hover:border-white/40 hover:text-white">
+                className="inline-flex items-center gap-2 border border-zinc-200 px-5 py-2.5 font-inter text-xs uppercase tracking-widest text-zinc-500 transition-colors hover:border-zinc-400 hover:text-zinc-900 dark:border-white/20 dark:text-white/70 dark:hover:border-white/40 dark:hover:text-white">
                 <LogIn className="h-3.5 w-3.5" />
                 Entrar
               </Link>
@@ -76,22 +177,50 @@ export default function Navbar({ user = null }: { user?: NavUser }) {
         </div>
 
         {/* Hamburger */}
-        <button type="button" onClick={() => setMenuOpen(true)} aria-label="Abrir menú"
-          className="flex flex-col space-y-1.5 md:hidden">
-          <div className="h-0.5 w-6 bg-white" />
-          <div className="h-0.5 w-6 bg-white" />
-          <div className="h-0.5 w-4 bg-white" />
-        </button>
+        <div className="flex items-center gap-3 md:hidden">
+          {showSearch && (
+            <button type="button" onClick={() => setSearchOpen((v) => !v)}
+              className="text-zinc-500 dark:text-white/60">
+              <Search className="h-5 w-5" />
+            </button>
+          )}
+          <ThemeToggle />
+          {showCart && <CartIcon />}
+          <button type="button" onClick={() => setMenuOpen(true)} aria-label="Abrir menú"
+            className="flex flex-col space-y-1.5">
+            <div className="h-0.5 w-6 bg-zinc-900 dark:bg-white" />
+            <div className="h-0.5 w-6 bg-zinc-900 dark:bg-white" />
+            <div className="h-0.5 w-4 bg-zinc-900 dark:bg-white" />
+          </button>
+        </div>
       </header>
 
+      {/* Barra de búsqueda móvil expandida */}
+      {showSearch && searchOpen && (
+        <div className="fixed inset-x-0 top-[73px] z-39 border-b border-zinc-200 bg-white/95 px-6 py-3 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/95 md:hidden">
+          <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <Search className="h-4 w-4 shrink-0 text-zinc-400 dark:text-white/30" />
+            <input
+              ref={searchRef}
+              name="q"
+              type="text"
+              placeholder="Buscar juegos..."
+              autoFocus
+              className="flex-1 bg-transparent font-inter text-sm text-zinc-900 placeholder-zinc-400 outline-none dark:text-white dark:placeholder-white/30"
+            />
+            <button type="button" onClick={() => setSearchOpen(false)}>
+              <X className="h-4 w-4 text-zinc-400 dark:text-white/30" />
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* Mobile overlay */}
-      <div className={`fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-sm transition-all duration-500 md:hidden ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+      <div className={`fixed inset-0 z-50 flex flex-col bg-white/98 backdrop-blur-sm dark:bg-black/95 transition-all duration-500 md:hidden ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
         <div className="flex items-center justify-between px-6 py-5 sm:px-10">
-          <span className="font-podium text-2xl font-bold uppercase tracking-wider text-white sm:text-3xl">
-            Bos<span className="text-red-600">Store</span>
-          </span>
+          <BrandLogo />
           <button type="button" onClick={() => setMenuOpen(false)} aria-label="Cerrar menú"
-            className="text-white/60 transition-colors hover:text-white">
+            className="text-zinc-400 transition-colors hover:text-zinc-900 dark:text-white/60 dark:hover:text-white">
             <X className="h-7 w-7" />
           </button>
         </div>
@@ -102,13 +231,13 @@ export default function Navbar({ user = null }: { user?: NavUser }) {
               {user.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={user.avatar_url} alt=""
-                  className="h-11 w-11 rounded-full object-cover ring-1 ring-white/20" />
+                  className="h-11 w-11 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-white/20" />
               ) : (
                 <span className="flex h-11 w-11 items-center justify-center bg-red-600 font-podium text-lg uppercase text-white">
                   {(user.full_name || user.email).charAt(0).toUpperCase()}
                 </span>
               )}
-              <span className="truncate font-inter text-sm text-white/60">
+              <span className="truncate font-inter text-sm text-zinc-500 dark:text-white/60">
                 {user.full_name || user.email}
               </span>
             </div>
@@ -116,7 +245,7 @@ export default function Navbar({ user = null }: { user?: NavUser }) {
 
           {NAV_LINKS.map(({ label, href }, i) => (
             <Link key={label} href={href} onClick={() => setMenuOpen(false)}
-              className="font-podium text-4xl uppercase text-white transition-colors hover:text-red-500 sm:text-5xl"
+              className="font-podium text-4xl uppercase text-zinc-900 transition-colors hover:text-red-500 dark:text-white sm:text-5xl"
               style={itemStyle(i + (user ? 1 : 0))}>
               {label}
             </Link>
@@ -131,14 +260,14 @@ export default function Navbar({ user = null }: { user?: NavUser }) {
 
           {user ? (
             <LogoutButton
-              className="inline-flex w-fit items-center gap-2 border border-white/20 px-6 py-3 font-inter text-xs uppercase tracking-widest text-white/70 transition-colors hover:text-white"
+              className="inline-flex w-fit items-center gap-2 border border-zinc-200 px-6 py-3 font-inter text-xs uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-900 dark:border-white/20 dark:text-white/70 dark:hover:text-white"
               style={itemStyle(NAV_LINKS.length + 2)}>
               <LogOut className="h-4 w-4" />
               Cerrar sesión
             </LogoutButton>
           ) : (
             <Link href="/login" onClick={() => setMenuOpen(false)}
-              className="inline-flex w-fit items-center gap-2 border border-white/20 px-6 py-3 font-inter text-xs uppercase tracking-widest text-white/70 transition-colors hover:text-white"
+              className="inline-flex w-fit items-center gap-2 border border-zinc-200 px-6 py-3 font-inter text-xs uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-900 dark:border-white/20 dark:text-white/70 dark:hover:text-white"
               style={itemStyle(NAV_LINKS.length + 1)}>
               <LogIn className="h-4 w-4" />
               Iniciar sesión

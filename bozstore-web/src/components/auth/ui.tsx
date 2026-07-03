@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -9,19 +10,34 @@ import { createClient } from '@/lib/supabase/client'
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 px-4 py-12">
-      {/* Ambient red glow */}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-50 px-4 py-12 dark:bg-zinc-950">
+      {/* Ambient red glow — more subtle in light mode */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-red-600/10 blur-[140px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(220,38,38,0.07),transparent_60%)]" />
+        <div className="absolute -top-40 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-red-500/5 blur-[140px] dark:bg-red-600/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(220,38,38,0.04),transparent_60%)] dark:bg-[radial-gradient(circle_at_50%_120%,rgba(220,38,38,0.07),transparent_60%)]" />
       </div>
 
       <div className="relative w-full max-w-sm">
-        <Link
-          href="/"
-          className="mb-10 inline-block font-podium text-4xl uppercase tracking-tight text-white"
-        >
-          Bos<span className="text-red-600">Store</span>
+        <Link href="/" className="mb-10 flex items-center gap-3">
+          <Image
+            src="/logo-dark.png"
+            alt="BosStore"
+            width={56}
+            height={56}
+            className="hidden object-contain dark:block"
+            priority
+          />
+          <Image
+            src="/logo-light.png"
+            alt="BosStore"
+            width={56}
+            height={56}
+            className="block object-contain dark:hidden"
+            priority
+          />
+          <span className="font-podium text-4xl uppercase tracking-tight text-zinc-900 dark:text-white">
+            Bos<span className="text-red-600">Store</span>
+          </span>
         </Link>
         {children}
       </div>
@@ -38,11 +54,11 @@ export function AuthHeading({
 }) {
   return (
     <div className="mb-8">
-      <h1 className="font-podium text-3xl uppercase tracking-tight text-white">
+      <h1 className="font-podium text-3xl uppercase tracking-tight text-zinc-900 dark:text-white">
         {title}
       </h1>
       {subtitle && (
-        <p className="mt-2 font-inter text-sm leading-relaxed text-white/45">
+        <p className="mt-2 font-inter text-sm leading-relaxed text-zinc-500 dark:text-white/45">
           {subtitle}
         </p>
       )}
@@ -58,12 +74,12 @@ export function AuthInput({
 }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className="block">
-      <span className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-white/40">
+      <span className="mb-1.5 block font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/40">
         {label}
       </span>
       <input
         {...props}
-        className="w-full border border-white/10 bg-white/5 px-4 py-3 font-inter text-sm text-white placeholder-white/20 outline-none transition-colors focus:border-red-500/50"
+        className="w-full border border-zinc-200 bg-white px-4 py-3 font-inter text-sm text-zinc-900 placeholder-zinc-300 outline-none transition-colors focus:border-red-400 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-white/20 dark:focus:border-red-500/50"
       />
     </label>
   )
@@ -83,8 +99,8 @@ export function AuthError({ children }: { children?: React.ReactNode }) {
 export function AuthNotice({ children }: { children?: React.ReactNode }) {
   if (!children) return null
   return (
-    <div className="border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
-      <p className="font-inter text-xs leading-relaxed text-emerald-300">
+    <div className="border border-emerald-400/40 bg-emerald-50 px-4 py-3 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+      <p className="font-inter text-xs leading-relaxed text-emerald-700 dark:text-emerald-300">
         {children}
       </p>
     </div>
@@ -115,11 +131,11 @@ export function AuthSubmit({
 export function AuthDivider({ label = 'o continúa con' }: { label?: string }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="h-px flex-1 bg-white/10" />
-      <span className="font-inter text-[9px] uppercase tracking-widest text-white/25">
+      <span className="h-px flex-1 bg-zinc-200 dark:bg-white/10" />
+      <span className="font-inter text-[9px] uppercase tracking-widest text-zinc-400 dark:text-white/25">
         {label}
       </span>
-      <span className="h-px flex-1 bg-white/10" />
+      <span className="h-px flex-1 bg-zinc-200 dark:bg-white/10" />
     </div>
   )
 }
@@ -181,7 +197,7 @@ export function OAuthButtons({
           type="button"
           onClick={() => signIn(id)}
           disabled={disabled || !!loading}
-          className="flex items-center justify-center gap-2 border border-white/10 bg-white/5 px-4 py-3 font-inter text-sm text-white/70 transition-colors hover:border-white/25 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex items-center justify-center gap-2 border border-zinc-200 bg-white px-4 py-3 font-inter text-sm text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/5 dark:text-white/70 dark:hover:border-white/25 dark:hover:text-white"
         >
           {loading === id ? <Loader2 className="h-4 w-4 animate-spin" /> : icon}
           {label}

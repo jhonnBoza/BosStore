@@ -28,7 +28,7 @@ export default function DeleteGameButton({
       onClick={handleDelete}
       disabled={pending}
       aria-label={`Eliminar ${title}`}
-      className="text-white/25 transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+      className="text-zinc-400 dark:text-white/25 transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40"
     >
       <Trash2 className="h-3.5 w-3.5" />
     </button>

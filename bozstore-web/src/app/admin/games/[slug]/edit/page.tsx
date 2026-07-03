@@ -39,16 +39,16 @@ export default async function EditGamePage(props: {
     <div className="px-6 py-8 sm:px-8">
       <Link
         href="/admin/games"
-        className="mb-8 inline-flex items-center gap-2 font-inter text-[10px] uppercase tracking-widest text-white/30 transition-colors hover:text-white/60"
+        className="mb-8 inline-flex items-center gap-2 font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/30 transition-colors hover:text-zinc-700 dark:hover:text-white/60"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Volver a juegos
       </Link>
 
-      <h1 className="mb-1 font-podium text-3xl uppercase tracking-tight text-white">
+      <h1 className="mb-1 font-podium text-3xl uppercase tracking-tight text-zinc-900 dark:text-white">
         Editar juego
       </h1>
-      <p className="mb-8 font-inter text-sm text-white/35">{game.title}</p>
+      <p className="mb-8 font-inter text-sm text-zinc-400 dark:text-white/35">{game.title}</p>
 
       <GameForm action={action} game={game} submitLabel="Guardar cambios" />
     </div>
