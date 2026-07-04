@@ -12,64 +12,77 @@ type GameRow = {
   genre: string | null
   platform: string | null
   stock: number | null
+  cover_url: string | null
 }
 
-function finalPrice(g: GameRow): number {
-  const d = g.discount_percent ?? 0
-  return Math.round(Number(g.price) * (1 - d / 100) * 100) / 100
+export type GameCard = {
+  slug: string
+  title: string
+  cover_url: string | null
+  price: number
+  discount_percent: number
+  final_price: number
+  genre: string | null
+  platform: string | null
 }
 
-// Construye un resumen compacto del catálogo para dárselo al modelo como
-// contexto. Así la IA responde SOLO con juegos reales (sin inventar).
-async function buildCatalogContext(): Promise<string> {
+export type AssistantResult = {
+  answer: string
+  games: GameCard[]
+}
+
+function finalPrice(price: number, discount: number): number {
+  return Math.round(Number(price) * (1 - discount / 100) * 100) / 100
+}
+
+const SYSTEM_PROMPT = `Eres "Boz", el asistente virtual de BosStore, una tienda de videojuegos digitales.
+Ayudas a los clientes a encontrar juegos usando ÚNICAMENTE el catálogo que se te da.
+
+Debes responder en formato JSON con dos campos:
+- "reply": un mensaje corto, amable y en español (1 o 2 frases). NO uses asteriscos ni markdown. NO listes los juegos dentro de este texto (se mostrarán como tarjetas aparte). Ej: "¡Claro! Estas son las mejores ofertas ahora mismo:".
+- "slugs": un arreglo con los "slug" de los juegos que recomiendas, EN EL ORDEN que quieras mostrarlos (máximo 6). Usa exactamente los slugs del catálogo. Si la pregunta no requiere mostrar juegos, deja el arreglo vacío.
+
+Reglas:
+- Cuando pidan "más baratos", "en oferta", "por género", "para PC", etc., filtra y ordena tú los juegos y pon sus slugs.
+- NUNCA inventes juegos ni slugs que no estén en el catálogo.
+- Si preguntan algo fuera del catálogo o no relacionado con la tienda, responde con amabilidad en "reply" y deja "slugs" vacío.`
+
+async function fetchCatalog(): Promise<GameRow[]> {
   const { data, error } = await supabaseAdmin
     .from('games')
-    .select('title, slug, price, discount_percent, genre, platform, stock')
+    .select('title, slug, price, discount_percent, genre, platform, stock, cover_url')
     .order('created_at', { ascending: false })
     .limit(200)
 
   if (error) throw error
-  const games = (data ?? []) as GameRow[]
-
-  const lines = games.map((g) => {
-    const d = g.discount_percent ?? 0
-    const oferta = d > 0 ? ` | OFERTA -${d}% (final $${finalPrice(g)})` : ''
-    const stock = (g.stock ?? 0) > 0 ? `${g.stock} en stock` : 'AGOTADO'
-    return `- ${g.title} | ${g.genre ?? 'varios'} | ${g.platform ?? 'multi'} | $${Number(g.price).toFixed(2)}${oferta} | ${stock}`
-  })
-
-  return lines.join('\n')
+  return (data ?? []) as GameRow[]
 }
 
-const SYSTEM_PROMPT = `Eres "Boz", el asistente virtual de BosStore, una tienda de videojuegos digitales.
-Tu trabajo es ayudar a los clientes a encontrar juegos usando ÚNICAMENTE el catálogo que se te proporciona más abajo.
-
-Reglas:
-- Responde siempre en español, de forma breve, amable y directa.
-- Los precios están en dólares (USD). Cuando un juego tiene OFERTA, menciona el precio final.
-- Cuando te pidan "los más baratos", "en oferta/descuento", "por género", "para PC", etc., filtra y ordena la lista tú mismo.
-- Muestra los juegos como una lista corta con su precio. No más de 6 a menos que pidan más.
-- NUNCA inventes juegos, precios ni datos que no estén en el catálogo.
-- Si preguntan por algo que no está en el catálogo, dilo con honestidad y sugiere alternativas parecidas que sí existan.
-- Si preguntan algo no relacionado con la tienda de videojuegos, responde con amabilidad que solo puedes ayudar con el catálogo de BosStore.`
+function catalogToText(games: GameRow[]): string {
+  return games
+    .map((g) => {
+      const d = g.discount_percent ?? 0
+      const oferta = d > 0 ? ` | OFERTA -${d}% (final $${finalPrice(g.price, d)})` : ''
+      const stock = (g.stock ?? 0) > 0 ? 'disponible' : 'AGOTADO'
+      return `- slug:${g.slug} | ${g.title} | ${g.genre ?? 'varios'} | ${g.platform ?? 'multi'} | $${Number(g.price).toFixed(2)}${oferta} | ${stock}`
+    })
+    .join('\n')
+}
 
 export async function askAssistant(
   message: string,
   history: ChatTurn[] = [],
-): Promise<string> {
+): Promise<AssistantResult> {
   if (!env.GEMINI_API_KEY) {
     throw new AppError(503, 'El asistente de IA no está configurado en el servidor.', 'AI_NOT_CONFIGURED')
   }
 
-  const catalog = await buildCatalogContext()
+  const games = await fetchCatalog()
 
   const contents = [
-    // El catálogo va como primer turno de contexto.
-    { role: 'user', parts: [{ text: `CATÁLOGO ACTUAL DE BOSSTORE:\n${catalog}` }] },
-    { role: 'model', parts: [{ text: 'Entendido, tengo el catálogo. ¿En qué te ayudo?' }] },
-    // Historial previo de la conversación (máximo lo que mande el frontend).
+    { role: 'user', parts: [{ text: `CATÁLOGO ACTUAL DE BOSSTORE:\n${catalogToText(games)}` }] },
+    { role: 'model', parts: [{ text: '{"reply":"Entendido, tengo el catálogo. ¿En qué te ayudo?","slugs":[]}' }] },
     ...history.slice(-8).map((t) => ({ role: t.role, parts: [{ text: t.text }] })),
-    // Pregunta actual del usuario.
     { role: 'user', parts: [{ text: message }] },
   ]
 
@@ -83,7 +96,19 @@ export async function askAssistant(
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
         contents,
-        generationConfig: { temperature: 0.4, maxOutputTokens: 700 },
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 800,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              reply: { type: 'STRING' },
+              slugs: { type: 'ARRAY', items: { type: 'STRING' } },
+            },
+            required: ['reply', 'slugs'],
+          },
+        },
       }),
       signal: AbortSignal.timeout(20_000),
     })
@@ -104,11 +129,43 @@ export async function askAssistant(
   const data = (await res.json()) as {
     candidates?: { content?: { parts?: { text?: string }[] } }[]
   }
-  const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ?? ''
+  const raw = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ?? ''
 
-  if (!text.trim()) {
+  // El modelo responde en JSON; si algo falla, degradamos con elegancia.
+  let reply = ''
+  let slugs: string[] = []
+  try {
+    const parsed = JSON.parse(raw) as { reply?: string; slugs?: string[] }
+    reply = (parsed.reply ?? '').trim()
+    slugs = Array.isArray(parsed.slugs) ? parsed.slugs : []
+  } catch {
+    reply = raw.replace(/[*_`]/g, '').trim()
+  }
+
+  if (!reply && slugs.length === 0) {
     throw new AppError(502, 'El asistente no devolvió una respuesta. Intenta reformular tu pregunta.', 'AI_EMPTY')
   }
 
-  return text.trim()
+  // Mapear los slugs elegidos a datos reales del catálogo (evita imágenes o
+  // precios inventados y descarta cualquier slug que no exista).
+  const bySlug = new Map(games.map((g) => [g.slug, g]))
+  const cards: GameCard[] = slugs
+    .map((s) => bySlug.get(s))
+    .filter((g): g is GameRow => !!g)
+    .slice(0, 6)
+    .map((g) => {
+      const d = g.discount_percent ?? 0
+      return {
+        slug: g.slug,
+        title: g.title,
+        cover_url: g.cover_url,
+        price: Number(g.price),
+        discount_percent: d,
+        final_price: finalPrice(g.price, d),
+        genre: g.genre,
+        platform: g.platform,
+      }
+    })
+
+  return { answer: reply || 'Aquí tienes algunas opciones:', games: cards }
 }

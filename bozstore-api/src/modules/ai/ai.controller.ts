@@ -33,8 +33,8 @@ export async function chat(req: Request, res: Response, next: NextFunction) {
           .slice(-8)
       : []
 
-    const answer = await askAssistant(message, history)
-    res.json({ success: true, data: { answer } })
+    const result = await askAssistant(message, history)
+    res.json({ success: true, data: result })
   } catch (err) {
     next(err)
   }
