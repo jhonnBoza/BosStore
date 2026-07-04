@@ -18,6 +18,8 @@ next-env.d.ts
 .env*.local
 **/.env
 **/.env.local
+**/.env.backup*
+**/.env.local.backup*
 # (los .env.example SÍ se suben: son plantillas sin claves)
 
 # ── Logs ──
