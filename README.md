@@ -1,8 +1,10 @@
 # BosStore — Tienda de Videojuegos Digitales
 
+[![CI](https://github.com/jhonnBoza/BosStore/actions/workflows/ci.yml/badge.svg)](https://github.com/jhonnBoza/BosStore/actions/workflows/ci.yml)
+
 Proyecto **full-stack** de una tienda de videojuegos digitales con panel de administración, carrito persistente, lista de deseos, reseñas, pagos con Stripe y autenticación con Google, Discord y correo con código OTP.
 
-**Funcionalidades de tienda:** catálogo con búsqueda por texto (título, género, desarrollador), filtros por género/plataforma/ofertas, ordenamiento (precio, nombre, descuento, fecha) y paginación; página de **Ofertas** con la mejor oferta destacada y ahorro calculado; **Novedades** con el último lanzamiento en portada y línea de tiempo por año; historial de pedidos del usuario en su cuenta y gestión de pedidos con estadísticas de ingresos en el panel admin. Precios en **USD**, la misma moneda que procesa Stripe.
+**Funcionalidades de tienda:** catálogo con búsqueda por texto (título, género, desarrollador), filtros por género/plataforma/ofertas, ordenamiento (precio, nombre, descuento, fecha) y paginación; página de **Ofertas** con la mejor oferta destacada y ahorro calculado; **Novedades** con el último lanzamiento en portada y línea de tiempo por año; historial de pedidos del usuario en su cuenta y gestión de pedidos con estadísticas de ingresos en el panel admin. Precios en **USD**, la misma moneda que procesa Stripe. El carrito se guarda en `localStorage` y **expira automáticamente a los 7 días** sin cambios; tras cada compra el stock se descuenta en servidor y el registro de la orden es **idempotente** (una sesión de Stripe nunca genera órdenes duplicadas).
 
 ---
 
@@ -231,6 +233,17 @@ http://localhost:4000/api/v1/docs.json
 
 ---
 
+## Tests y CI
+
+- **Tests unitarios con Vitest** (23 en total): validación Zod del catálogo y clases de error en el API; cálculo de precios/descuentos (con el mismo redondeo que el backend) en el frontend.
+- **CI en GitHub Actions** (`.github/workflows/ci.yml`): en cada *push* y *pull request* a `main` corren **dos jobs en paralelo** (API y Web), cada uno con `npm ci → typecheck → test → build`. El build del frontend usa variables dummy — no requiere claves ni secretos.
+
+```bash
+npm test          # en bozstore-api o bozstore-web
+```
+
+---
+
 ## Scripts
 
 **`bozstore-api`**
@@ -238,8 +251,9 @@ http://localhost:4000/api/v1/docs.json
 | Comando | Descripción |
 |---|---|
 | `npm run dev` | Servidor de desarrollo con hot-reload (`tsx watch`) |
-| `npm run build` | Compila TypeScript → `dist/` |
+| `npm run build` | Compila TypeScript → `dist/` (excluye tests vía `tsconfig.build.json`) |
 | `npm run start` | Sirve la versión compilada |
+| `npm test` | Tests unitarios (Vitest) |
 | `npm run typecheck` | Verifica tipos sin compilar |
 | `npx tsx scripts/create-admin.ts <email> <pass>` | Crea/promueve usuario admin |
 
@@ -250,5 +264,6 @@ http://localhost:4000/api/v1/docs.json
 | `npm run dev` | Sitio de desarrollo con Turbopack |
 | `npm run build` | Build de producción |
 | `npm run start` | Sirve el build |
+| `npm test` | Tests unitarios (Vitest) |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Verifica tipos sin compilar |
