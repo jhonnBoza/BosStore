@@ -21,7 +21,7 @@ const SORT_OPTIONS = [
   { value: 'price-desc', label: 'Precio: mayor a menor' },
   { value: 'name',       label: 'Nombre A-Z' },
   { value: 'discount',   label: 'Mayor descuento' },
-  { value: 'newest',     label: 'Mas nuevos' },
+  { value: 'newest',     label: 'Más nuevos' },
 ] as const
 
 type SortValue = (typeof SORT_OPTIONS)[number]['value']
@@ -165,7 +165,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
         <div className="space-y-3">
           {genreOptions.length > 2 && (
             <ToolbarSelect
-              label="Genero"
+              label="Género"
               value={activeGenre}
               options={genreOptions}
               onChange={(v) => setParam('genre', v)}
@@ -310,7 +310,7 @@ export default function GameGrid({ games }: { games: Game[] }) {
                 Juegos
               </h3>
               <span className="font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/35">
-                Pagina {page} de {totalPages}
+                Página {page} de {totalPages}
               </span>
             </div>
 
