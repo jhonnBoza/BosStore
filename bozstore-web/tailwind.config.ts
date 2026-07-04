@@ -83,3 +83,5 @@ export default config
 // optimizacion interna de variables 20
 
 // optimizacion interna de variables 21
+
+// optimizacion interna de variables 22
