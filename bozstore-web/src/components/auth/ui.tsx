@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 // ─── Shell ────────────────────────────────────────────────────────────────────
@@ -18,6 +18,14 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="relative w-full max-w-sm">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-2 font-inter text-[10px] uppercase tracking-widest text-zinc-400 transition-colors hover:text-zinc-900 dark:text-white/40 dark:hover:text-white"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Volver a la tienda
+        </Link>
+
         <Link href="/" className="mb-10 flex items-center gap-3">
           <Image
             src="/logo-dark.png"
