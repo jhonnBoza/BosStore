@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Tree-shaking agresivo de librerías de iconos → menos JS, navegación más rápida.
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@fortawesome/react-fontawesome'],
+  },
+  poweredByHeader: false,
+  compress: true,
 }
 
 export default nextConfig

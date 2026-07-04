@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { Gamepad2, LogIn, LogOut, Search, X } from 'lucide-react'
+import { Gamepad2, LogIn, LogOut, X } from 'lucide-react'
 import UserMenu from '@/components/auth/UserMenu'
 import LogoutButton from '@/components/auth/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import CartIcon from '@/components/cart/CartIcon'
+import SearchBox from '@/components/shop/SearchBox'
 
 export type NavUser = {
   email: string
@@ -59,12 +59,9 @@ export default function Navbar({
   showCart?: boolean
 }) {
   const [menuOpen, setMenuOpen]     = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
   const [scrollState, setScrollState] = useState<'top' | 'hero' | 'body'>('top')
   const [navHidden, setNavHidden] = useState(false)
-  const searchRef = useRef<HTMLInputElement>(null)
   const lastScrollY = useRef(0)
-  const router    = useRouter()
 
   useEffect(() => {
     const onScroll = () => {
@@ -82,18 +79,6 @@ export default function Navbar({
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => {
-    if (searchOpen) searchRef.current?.focus()
-  }, [searchOpen])
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const q = (searchRef.current?.value ?? '').trim()
-    router.push(q ? `/games?q=${encodeURIComponent(q)}` : '/games')
-    setSearchOpen(false)
-    if (searchRef.current) searchRef.current.value = ''
-  }
-
   const itemStyle = (i: number): CSSProperties => ({
     transitionProperty: 'opacity, transform',
     transitionDuration: '500ms',
@@ -105,7 +90,7 @@ export default function Navbar({
   return (
     <>
       <header className={`fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 transition-all duration-300 sm:px-10 lg:px-16 lg:py-7 ${
-        navHidden && !menuOpen && !searchOpen ? '-translate-y-full' : 'translate-y-0'
+        navHidden && !menuOpen ? '-translate-y-full' : 'translate-y-0'
       } ${
         scrollState === 'body'
           ? 'border-b border-zinc-200/80 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/95'
@@ -126,36 +111,8 @@ export default function Navbar({
         </nav>
 
         {/* Desktop actions */}
-        <div className="hidden items-center gap-2 md:flex">
-          {/* Búsqueda expandible */}
-          {showSearch && (
-            <div className="relative flex items-center">
-              <form
-                onSubmit={handleSearch}
-                className={`flex items-center overflow-hidden transition-all duration-300 ${
-                  searchOpen ? 'w-52' : 'w-0'
-                }`}
-              >
-                <input
-                  ref={searchRef}
-                  name="q"
-                  type="text"
-                  placeholder="Buscar juegos..."
-                  onBlur={() => {
-                    if (!searchRef.current?.value) setSearchOpen(false)
-                  }}
-                  className="w-full border-b border-zinc-300 bg-transparent py-1 pr-2 font-inter text-sm text-zinc-900 placeholder-zinc-400 outline-none dark:border-white/20 dark:text-white dark:placeholder-white/30"
-                />
-              </form>
-              <button
-                type="button"
-                onClick={() => setSearchOpen((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center text-zinc-500 transition-colors hover:text-zinc-900 dark:text-white/60 dark:hover:text-white"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+        <div className="hidden items-center gap-3 md:flex">
+          {showSearch && <SearchBox className="w-52 lg:w-60" />}
 
           <ThemeToggle />
           {showCart && <CartIcon />}
@@ -187,12 +144,6 @@ export default function Navbar({
 
         {/* Hamburger */}
         <div className="flex items-center gap-3 md:hidden">
-          {showSearch && (
-            <button type="button" onClick={() => setSearchOpen((v) => !v)}
-              className="text-zinc-500 dark:text-white/60">
-              <Search className="h-5 w-5" />
-            </button>
-          )}
           <ThemeToggle />
           {showCart && <CartIcon />}
           <button type="button" onClick={() => setMenuOpen(true)} aria-label="Abrir menú"
@@ -203,26 +154,6 @@ export default function Navbar({
           </button>
         </div>
       </header>
-
-      {/* Barra de búsqueda móvil expandida */}
-      {showSearch && searchOpen && (
-        <div className="fixed inset-x-0 top-[73px] z-39 border-b border-zinc-200 bg-white/95 px-6 py-3 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/95 md:hidden">
-          <form onSubmit={handleSearch} className="flex items-center gap-2">
-            <Search className="h-4 w-4 shrink-0 text-zinc-400 dark:text-white/30" />
-            <input
-              ref={searchRef}
-              name="q"
-              type="text"
-              placeholder="Buscar juegos..."
-              autoFocus
-              className="flex-1 bg-transparent font-inter text-sm text-zinc-900 placeholder-zinc-400 outline-none dark:text-white dark:placeholder-white/30"
-            />
-            <button type="button" onClick={() => setSearchOpen(false)}>
-              <X className="h-4 w-4 text-zinc-400 dark:text-white/30" />
-            </button>
-          </form>
-        </div>
-      )}
 
       {/* Mobile overlay */}
       <div className={`fixed inset-0 z-50 flex flex-col bg-white/98 backdrop-blur-sm dark:bg-black/95 transition-all duration-500 md:hidden ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
@@ -249,6 +180,12 @@ export default function Navbar({
               <span className="truncate font-inter text-sm text-zinc-500 dark:text-white/60">
                 {user.full_name || user.email}
               </span>
+            </div>
+          )}
+
+          {showSearch && (
+            <div className="mb-2">
+              <SearchBox onNavigate={() => setMenuOpen(false)} />
             </div>
           )}
 

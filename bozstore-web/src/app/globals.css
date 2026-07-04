@@ -78,4 +78,31 @@
     to   { transform: translateX(-50%); }
   }
   .animate-marquee { animation: marquee 35s linear infinite; }
+
+  /* ── Scroll-reveal (aparición fluida al hacer scroll) ── */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  [data-reveal].reveal-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Scroll suave global ── */
+html { scroll-behavior: smooth; }
+
+/* ── Respeta a quien prefiere menos movimiento ── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
 }

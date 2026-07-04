@@ -13,6 +13,7 @@ import {
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import FeaturedOffersCarousel from '@/components/shop/FeaturedOffersCarousel'
+import ScrollReveal from '@/components/ui/ScrollReveal'
 import type { Game } from '@/types/game'
 import { createClient } from '@/lib/supabase/server'
 import { hasDiscount, finalPrice, formatPrice } from '@/lib/pricing'
@@ -91,12 +92,13 @@ export default async function LandingPage() {
   return (
     <div className="bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
 
-      <Navbar user={navUser} />
+      <Navbar user={navUser} showSearch showCart />
 
       {/* HERO */}
       <section className="relative h-screen w-full overflow-hidden bg-zinc-100 dark:bg-zinc-950">
         {VIDEO_URL ? (
-          <video autoPlay muted loop playsInline
+          <video autoPlay muted loop playsInline preload="metadata"
+            poster={spotlight?.cover_url ?? undefined}
             className="absolute inset-0 h-full w-full object-cover opacity-100 dark:opacity-45">
             <source src={VIDEO_URL} type="video/mp4" />
           </video>
@@ -186,7 +188,7 @@ export default async function LandingPage() {
 
       {/* JUEGOS POPULARES */}
       {popularGames.length > 0 && (
-        <section className="border-t border-zinc-200 bg-zinc-50 py-10 dark:border-white/5 dark:bg-zinc-900/40 sm:py-14">
+        <section data-reveal className="border-t border-zinc-200 bg-zinc-50 py-10 dark:border-white/5 dark:bg-zinc-900/40 sm:py-14">
           <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="font-podium text-3xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-4xl">Juegos Populares</h2>
@@ -270,7 +272,7 @@ export default async function LandingPage() {
 
       {/* OFERTAS DESTACADAS */}
       {offerGames.length > 0 && (
-        <section className="border-t border-zinc-200 py-12 dark:border-white/5 sm:py-16">
+        <section data-reveal className="border-t border-zinc-200 py-12 dark:border-white/5 sm:py-16">
           <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
             <div className="mb-6 flex items-start justify-between">
               <div>
@@ -288,7 +290,7 @@ export default async function LandingPage() {
       )}
 
       {/* GÉNEROS */}
-      <section className="border-t border-zinc-200 bg-zinc-50 py-20 dark:border-white/5 dark:bg-zinc-900/40 sm:py-28">
+      <section data-reveal className="border-t border-zinc-200 bg-zinc-50 py-20 dark:border-white/5 dark:bg-zinc-900/40 sm:py-28">
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
           <div className="mb-10">
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">Explora por categoría</p>
@@ -310,7 +312,7 @@ export default async function LandingPage() {
       </section>
 
       {/* PLATAFORMAS */}
-      <section className="border-t border-zinc-200 bg-zinc-50 py-20 dark:border-white/5 dark:bg-zinc-900/40 sm:py-28">
+      <section data-reveal className="border-t border-zinc-200 bg-zinc-50 py-20 dark:border-white/5 dark:bg-zinc-900/40 sm:py-28">
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
           <div className="mb-10 text-center">
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">Compatible con</p>
@@ -330,7 +332,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ¿POR QUÉ BosStore? */}
-      <section className="border-t border-zinc-200 py-20 dark:border-white/5 sm:py-28">
+      <section data-reveal className="border-t border-zinc-200 py-20 dark:border-white/5 sm:py-28">
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
           <div className="mb-12 text-center">
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">La diferencia BosStore</p>
@@ -351,7 +353,7 @@ export default async function LandingPage() {
       </section>
 
       {/* STATS BANNER */}
-      <section className="bg-red-600 py-16">
+      <section data-reveal className="bg-red-600 py-16">
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
           <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
             {STATS.map(({ value, label }) => (
@@ -365,7 +367,7 @@ export default async function LandingPage() {
       </section>
 
       {/* CTA FINAL */}
-      <section className="border-t border-zinc-200 py-28 dark:border-white/5 sm:py-36">
+      <section data-reveal className="border-t border-zinc-200 py-28 dark:border-white/5 sm:py-36">
         <div className="mx-auto max-w-3xl px-6 text-center sm:px-10">
           <p className="mb-3 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">
             {navUser ? 'Bienvenido de vuelta' : 'Únete a la comunidad'}
@@ -406,6 +408,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      <ScrollReveal />
       <Footer />
     </div>
   )

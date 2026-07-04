@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Loader2, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
+
 type Review = {
   id: string
   user_id: string
@@ -64,16 +66,25 @@ export default function Reviews({ gameSlug }: { gameSlug: string }) {
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [okMsg, setOkMsg] = useState(false)
 
+  // Se leen a través de la API (service role) para que TODOS vean todas las
+  // reseñas del juego, sin depender de las políticas RLS de Supabase.
   const load = useCallback(async () => {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('reviews')
-      .select('*')
-      .eq('game_slug', gameSlug)
-      .order('created_at', { ascending: false })
-    setReviews((data as Review[]) ?? [])
-    setLoading(false)
+    try {
+      const res = await fetch(`${API_URL}/reviews/${encodeURIComponent(gameSlug)}`, {
+        cache: 'no-store',
+      })
+      if (!res.ok) throw new Error('bad status')
+      const json = (await res.json()) as { data?: Review[] }
+      setReviews(json.data ?? [])
+      setLoadError(null)
+    } catch {
+      setLoadError('No se pudieron cargar las reseñas. Revisa tu conexión.')
+    } finally {
+      setLoading(false)
+    }
   }, [gameSlug])
 
   useEffect(() => {
@@ -98,6 +109,7 @@ export default function Reviews({ gameSlug }: { gameSlug: string }) {
 
   const submit = async () => {
     setError(null)
+    setOkMsg(false)
     if (rating < 1) {
       setError('Selecciona una calificación (1-5 estrellas).')
       return
@@ -129,8 +141,13 @@ export default function Reviews({ gameSlug }: { gameSlug: string }) {
         { onConflict: 'game_slug,user_id' },
       )
       if (upErr) {
-        setError('No se pudo enviar la reseña. Intenta de nuevo.')
+        setError(
+          upErr.message
+            ? `No se pudo enviar: ${upErr.message}`
+            : 'No se pudo enviar la reseña. Intenta de nuevo.',
+        )
       } else {
+        setOkMsg(true)
         await load()
       }
     } finally {
@@ -182,6 +199,16 @@ export default function Reviews({ gameSlug }: { gameSlug: string }) {
         {error && (
           <p className="mt-2 font-inter text-[11px] text-red-500">{error}</p>
         )}
+        {okMsg && !error && (
+          <p className="mt-2 font-inter text-[11px] text-green-500">
+            ¡Reseña publicada! Gracias por tu opinión.
+          </p>
+        )}
+        {!userId && (
+          <p className="mt-2 font-inter text-[11px] text-white/40">
+            Inicia sesión para publicar tu reseña.
+          </p>
+        )}
         <button
           type="button"
           onClick={submit}
@@ -198,6 +225,10 @@ export default function Reviews({ gameSlug }: { gameSlug: string }) {
         <div className="flex justify-center py-10">
           <Loader2 className="h-6 w-6 animate-spin text-white/40" />
         </div>
+      ) : loadError ? (
+        <p className="py-6 text-center font-inter text-sm text-red-500">
+          {loadError}
+        </p>
       ) : reviews.length === 0 ? (
         <p className="py-6 text-center font-inter text-sm text-white/40">
           Aún no hay reseñas. ¡Sé el primero en opinar!
