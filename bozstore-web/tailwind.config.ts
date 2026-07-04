@@ -41,3 +41,5 @@ const config: Config = {
 export default config
 
 // optimizacion interna de variables 0
+
+// optimizacion interna de variables 1
