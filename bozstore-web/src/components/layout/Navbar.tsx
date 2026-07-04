@@ -61,7 +61,9 @@ export default function Navbar({
   const [menuOpen, setMenuOpen]     = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [scrollState, setScrollState] = useState<'top' | 'hero' | 'body'>('top')
+  const [navHidden, setNavHidden] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
+  const lastScrollY = useRef(0)
   const router    = useRouter()
 
   useEffect(() => {
@@ -70,7 +72,12 @@ export default function Navbar({
       if (y === 0) setScrollState('top')
       else if (y < window.innerHeight - 80) setScrollState('hero')
       else setScrollState('body')
+
+      const scrollingDown = y > lastScrollY.current
+      setNavHidden(scrollingDown && y > 110)
+      lastScrollY.current = Math.max(y, 0)
     }
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -98,6 +105,8 @@ export default function Navbar({
   return (
     <>
       <header className={`fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 transition-all duration-300 sm:px-10 lg:px-16 lg:py-7 ${
+        navHidden && !menuOpen && !searchOpen ? '-translate-y-full' : 'translate-y-0'
+      } ${
         scrollState === 'body'
           ? 'border-b border-zinc-200/80 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/95'
           : scrollState === 'hero'

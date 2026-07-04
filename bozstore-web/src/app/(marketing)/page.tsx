@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlaystation, faXbox } from '@fortawesome/free-brands-svg-icons'
+import { faComputer, faGamepad } from '@fortawesome/free-solid-svg-icons'
 import {
   ArrowUpRight,
   Clock, Compass, Gamepad2, Globe, LayoutGrid,
@@ -9,6 +12,7 @@ import {
 } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import FeaturedOffersCarousel from '@/components/shop/FeaturedOffersCarousel'
 import type { Game } from '@/types/game'
 import { createClient } from '@/lib/supabase/server'
 import { hasDiscount, finalPrice, formatPrice } from '@/lib/pricing'
@@ -49,10 +53,10 @@ const FEATURES = [
 ]
 
 const PLATFORMS = [
-  { name: 'PC / Steam',  icon: Monitor,  desc: 'Windows, Mac & Linux' },
-  { name: 'PlayStation', icon: Gamepad2, desc: 'PS4 & PS5'            },
-  { name: 'Xbox',        icon: Gamepad2, desc: 'Series X/S & One'     },
-  { name: 'Nintendo',    icon: Gamepad2, desc: 'Switch & Switch 2'    },
+  { name: 'PC / Steam',  icon: faComputer,    desc: 'Windows, Mac & Linux' },
+  { name: 'PlayStation', icon: faPlaystation, desc: 'PS4 & PS5'            },
+  { name: 'Xbox',        icon: faXbox,        desc: 'Series X/S & One'     },
+  { name: 'Nintendo',    icon: faGamepad,     desc: 'Switch & Switch 2'    },
 ]
 
 const STATS = [
@@ -82,7 +86,7 @@ export default async function LandingPage() {
   const spotlight    = games.find((g) => g.cover_url) ?? games[0] ?? null
   const tickerBase   = games.length > 0 ? games.map((g) => g.title.toUpperCase()).join(' · ') : TICKER_FALLBACK
   const popularGames = games.slice(0, 5)
-  const offerGames   = games.filter(hasDiscount).slice(0, 3)
+  const offerGames   = games.filter(hasDiscount).slice(0, 8)
 
   return (
     <div className="bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
@@ -266,7 +270,7 @@ export default async function LandingPage() {
 
       {/* OFERTAS DESTACADAS */}
       {offerGames.length > 0 && (
-        <section className="border-t border-zinc-200 py-10 dark:border-white/5 sm:py-14">
+        <section className="border-t border-zinc-200 py-12 dark:border-white/5 sm:py-16">
           <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
             <div className="mb-6 flex items-start justify-between">
               <div>
@@ -278,32 +282,7 @@ export default async function LandingPage() {
                 Ver todas <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {offerGames.map((game) => (
-                <Link key={game.id} href={`/games/${game.slug}`}
-                  className="group flex gap-3 border border-zinc-200 bg-zinc-50 p-3 transition-all hover:border-red-400/30 hover:bg-zinc-100 dark:border-white/5 dark:bg-zinc-900/40 dark:hover:border-red-600/20 dark:hover:bg-zinc-900/70">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                    {game.cover_url && (
-                      <Image src={game.cover_url} alt={game.title} fill sizes="64px" className="object-cover" />
-                    )}
-                  </div>
-                  <div className="flex min-w-0 flex-col justify-center gap-1">
-                    <p className="truncate font-inter text-xs font-semibold text-zinc-900 dark:text-white/90">{game.title}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="bg-red-100 px-1.5 py-0.5 font-inter text-[9px] font-bold text-red-600 dark:bg-red-600/20 dark:text-red-400">
-                        -{game.discount_percent}%
-                      </span>
-                      <span className="font-inter text-[10px] text-zinc-400 line-through dark:text-white/25">
-                        {formatPrice(game.price)}
-                      </span>
-                      <span className="font-inter text-sm font-bold text-zinc-900 dark:text-white">
-                        {formatPrice(finalPrice(game))}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <FeaturedOffersCarousel games={offerGames} />
           </div>
         </section>
       )}
@@ -315,12 +294,14 @@ export default async function LandingPage() {
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-red-500">Explora por categoría</p>
             <h2 className="font-podium text-4xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-5xl">Géneros</h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {GENRES.map(({ label, icon: Icon, q, grad, border, text }) => (
               <Link key={label} href={`/games?genre=${encodeURIComponent(q)}`}
-                className={`group relative overflow-hidden border ${border} bg-gradient-to-br ${grad} p-6 transition-all hover:-translate-y-0.5 hover:shadow-md`}>
-                <Icon className={`mb-3 h-6 w-6 ${text} transition-transform duration-300 group-hover:scale-110`} />
-                <p className="font-podium text-sm uppercase tracking-wide text-zinc-900 dark:text-white/80">{label}</p>
+                className={`group relative flex min-h-[140px] flex-col justify-between overflow-hidden border ${border} bg-gradient-to-br ${grad} p-5 transition-all hover:-translate-y-0.5 hover:shadow-md sm:min-h-[150px]`}>
+                <div className={`flex h-12 w-12 items-center justify-center border ${border} bg-white/50 dark:bg-black/15`}>
+                  <Icon className={`h-6 w-6 ${text} transition-transform duration-300 group-hover:scale-110`} />
+                </div>
+                <p className="font-podium text-base uppercase tracking-wide text-zinc-900 dark:text-white/80">{label}</p>
                 <ArrowUpRight className="absolute bottom-3 right-3 h-3 w-3 text-zinc-400 transition-all group-hover:text-red-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-white/15" />
               </Link>
             ))}
@@ -336,10 +317,10 @@ export default async function LandingPage() {
             <h2 className="font-podium text-4xl uppercase tracking-tight text-zinc-900 dark:text-white sm:text-5xl">Tus plataformas</h2>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {PLATFORMS.map(({ name, icon: Icon, desc }) => (
+            {PLATFORMS.map(({ name, icon, desc }) => (
               <div key={name}
                 className="group flex flex-col items-center border border-zinc-200 bg-white p-8 text-center transition-all hover:border-red-400/30 hover:shadow-md dark:border-white/5 dark:bg-zinc-900/40 dark:hover:border-red-600/20">
-                <Icon className="mb-4 h-8 w-8 text-zinc-300 transition-colors group-hover:text-red-500 dark:text-white/20" />
+                <FontAwesomeIcon icon={icon} className="mb-4 h-8 w-8 text-zinc-400 transition-colors group-hover:text-red-500 dark:text-white/25" />
                 <p className="font-podium text-sm uppercase tracking-wide text-zinc-800 dark:text-white/80">{name}</p>
                 <p className="mt-1 font-inter text-[10px] text-zinc-400 dark:text-white/35">{desc}</p>
               </div>
