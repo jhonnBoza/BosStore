@@ -38,26 +38,33 @@ export default function RegisterForm({ next }: { next?: string }) {
   const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
 
   // Pide al API que genere y envíe un código de 6 dígitos al correo.
+  // Todo el fetch va en try/catch: si la red falla (timeout, CORS, servidor
+  // caído) no debe dejar el botón en "cargando" para siempre.
   const sendCode = async (): Promise<boolean> => {
-    const res = await fetch(`${API_BASE}/auth/register/request`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email.trim(),
-        password,
-        full_name: name.trim(),
-      }),
-    })
-    const json = await res.json().catch(() => null)
-    if (!res.ok) {
-      if (json?.error?.code === 'SMTP_NOT_CONFIGURED') {
-        setError('El envío de correos no está configurado en el servidor (faltan credenciales SMTP en el API).')
-      } else {
-        setError(json?.error?.message ?? 'No se pudo enviar el código. Intenta de nuevo.')
+    try {
+      const res = await fetch(`${API_BASE}/auth/register/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          full_name: name.trim(),
+        }),
+      })
+      const json = await res.json().catch(() => null)
+      if (!res.ok) {
+        if (json?.error?.code === 'SMTP_NOT_CONFIGURED') {
+          setError('El envío de correos no está configurado en el servidor (faltan credenciales SMTP en el API).')
+        } else {
+          setError(json?.error?.message ?? 'No se pudo enviar el código. Intenta de nuevo.')
+        }
+        return false
       }
+      return true
+    } catch {
+      setError('No se pudo conectar con el servidor. Revisa tu conexión e intenta de nuevo.')
       return false
     }
-    return true
   }
 
   const submitForm = async (e: React.FormEvent) => {
@@ -84,31 +91,35 @@ export default function RegisterForm({ next }: { next?: string }) {
     setError('')
     setLoading(true)
 
-    // 1) El API valida el código y crea la cuenta ya confirmada en Supabase.
-    const res = await fetch(`${API_BASE}/auth/register/verify`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.trim(), code: code.trim() }),
-    })
-    const json = await res.json().catch(() => null)
-    if (!res.ok) {
-      setError(json?.error?.message ?? 'Código incorrecto. Intenta de nuevo.')
-      setLoading(false)
-      return
-    }
+    try {
+      // 1) El API valida el código y crea la cuenta ya confirmada en Supabase.
+      const res = await fetch(`${API_BASE}/auth/register/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), code: code.trim() }),
+      })
+      const json = await res.json().catch(() => null)
+      if (!res.ok) {
+        setError(json?.error?.message ?? 'Código incorrecto. Intenta de nuevo.')
+        return
+      }
 
-    // 2) Iniciamos sesión con la contraseña para obtener la sesión en el navegador.
-    const supabase = createClient()
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    })
-    if (signInError) {
-      setError('Cuenta creada. Inicia sesión con tu correo y contraseña.')
+      // 2) Iniciamos sesión con la contraseña para obtener la sesión en el navegador.
+      const supabase = createClient()
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      })
+      if (signInError) {
+        setError('Cuenta creada. Inicia sesión con tu correo y contraseña.')
+        return
+      }
+      window.location.href = safeNext(next)
+    } catch {
+      setError('No se pudo conectar con el servidor. Revisa tu conexión e intenta de nuevo.')
+    } finally {
       setLoading(false)
-      return
     }
-    window.location.href = safeNext(next)
   }
 
   const resend = async () => {

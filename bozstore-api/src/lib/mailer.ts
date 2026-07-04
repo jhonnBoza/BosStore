@@ -12,6 +12,13 @@ function getTransporter(): Transporter | null {
       port: env.SMTP_PORT,
       secure: env.SMTP_PORT === 465, // true para 465, false para 587
       auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+      // Algunos hosts (ej. Render en su plan free) bloquean o restringen el
+      // tráfico SMTP saliente. Sin estos límites, sendMail() puede colgarse
+      // ~2 min (default de Nodemailer) dejando el botón en "cargando" para
+      // siempre. Con esto falla rápido y devuelve un error claro.
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 10_000,
     })
   }
   return transporter
