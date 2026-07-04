@@ -23,6 +23,11 @@
   }
 
   html, body { height: 100%; }
+  html {
+    /* Red de seguridad: evita scroll horizontal si algún elemento se
+       desborda por error, en vez de mostrar una barra de scroll fea. */
+    overflow-x: hidden;
+  }
   body {
     margin: 0;
     background-color: var(--bg);

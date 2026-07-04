@@ -112,8 +112,8 @@ export default async function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/30 dark:from-black/50 dark:via-black/20 dark:to-black/70" />
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-transparent dark:from-black/60 dark:via-transparent dark:to-transparent" />
 
-        <div className="relative z-10 flex h-full flex-col">
-          <main className="flex flex-1 flex-col justify-center px-6 pb-20 pt-20 sm:px-10 lg:px-16">
+        <div className="relative z-10 flex h-full min-w-0 flex-col">
+          <main className="flex min-w-0 flex-1 flex-col justify-center px-6 pb-20 pt-20 sm:px-10 lg:px-16">
             <div className="animate-fade-up mb-5 flex items-center gap-3">
               <Gamepad2 className="h-4 w-4 text-red-500" />
               <span className="font-inter text-[10px] uppercase tracking-[0.35em] text-zinc-400 dark:text-white/50 sm:text-xs">

@@ -59,7 +59,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-8 lg:col-span-3">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-3">
             {COLUMNS.map(({ title, links }) => (
               <div key={title}>
                 <h4 className="mb-5 font-podium text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/20">
