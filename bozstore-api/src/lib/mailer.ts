@@ -48,11 +48,24 @@ export async function sendOtpEmail(to: string, code: string): Promise<void> {
     <p style="font-size:12px;color:#71717a;margin:20px 0 0">Este código expira en 10 minutos. Si no creaste una cuenta en BosStore, ignora este correo.</p>
   </div>`
 
-  await t.sendMail({
-    from: `BosStore <${from}>`,
-    to,
-    subject: `${code} es tu código de verificación — BosStore`,
-    text: `Tu código de verificación de BosStore es: ${code} (expira en 10 minutos).`,
-    html,
-  })
+  try {
+    await t.sendMail({
+      from: `BosStore <${from}>`,
+      to,
+      subject: `${code} es tu código de verificación — BosStore`,
+      text: `Tu código de verificación de BosStore es: ${code} (expira en 10 minutos).`,
+      html,
+    })
+  } catch (err) {
+    // Algunos hosts (ej. Render en su plan free) bloquean el tráfico SMTP
+    // saliente, así que sendMail() puede fallar aunque las credenciales
+    // sean correctas. Se registra el error real y se devuelve un mensaje
+    // claro en vez del genérico "Internal server error".
+    console.error('[mailer] Fallo al enviar OTP:', err)
+    throw new AppError(
+      502,
+      'No se pudo enviar el correo de verificación en este momento. Intenta más tarde o regístrate con Google/Discord.',
+      'EMAIL_SEND_FAILED',
+    )
+  }
 }
