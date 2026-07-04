@@ -410,7 +410,7 @@ export default function GameForm({
 
           {/* Precio + Stock */}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Precio (S/)" name="price" type="number" defaultValue={game?.price} required step="0.01" min="0.01" placeholder="29.99" error={state?.errors?.price} />
+            <Field label="Precio (USD)" name="price" type="number" defaultValue={game?.price} required step="0.01" min="0.01" placeholder="29.99" error={state?.errors?.price} />
             <Field label="Stock" name="stock" type="number" defaultValue={game?.stock ?? 0} required min="0" placeholder="0" error={state?.errors?.stock} />
           </div>
 

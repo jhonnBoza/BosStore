@@ -2,6 +2,19 @@
 
 Proyecto **full-stack** de una tienda de videojuegos digitales con panel de administración, carrito persistente, lista de deseos, reseñas, pagos con Stripe y autenticación con Google, Discord y correo con código OTP.
 
+**Funcionalidades de tienda:** catálogo con búsqueda por texto (título, género, desarrollador), filtros por género/plataforma/ofertas, ordenamiento (precio, nombre, descuento, fecha) y paginación; página de **Ofertas** con la mejor oferta destacada y ahorro calculado; **Novedades** con el último lanzamiento en portada y línea de tiempo por año; historial de pedidos del usuario en su cuenta y gestión de pedidos con estadísticas de ingresos en el panel admin. Precios en **USD**, la misma moneda que procesa Stripe.
+
+---
+
+## Integrantes
+
+- AGUIRRE SAAVEDRA, JUAN ALEXIS
+- ALFONSO SOLORZANO, SAMIR HAZIEL
+- BOZA NUÑEZ, JHON ANDHERSON
+- GALVAN MORALES, LUIS ENRIQUE
+- MAS PINTO, ROBERTO FERNANDO
+- MONTOYA CUADROS, ALDY JENXY
+
 ---
 
 ## Stack tecnológico
@@ -75,8 +88,8 @@ BosStore/
         ├── middlewares/            auth (JWT), requireRole, validate (Zod), errorHandler
         ├── modules/
         │   ├── auth/               Registro con OTP por email (request + verify)
-        │   ├── games/              CRUD de juegos (GET público, mutaciones solo admin)
-        │   ├── orders/             Órdenes del usuario
+        │   ├── games/              CRUD de juegos (GET público con búsqueda/paginación, mutaciones solo admin)
+        │   ├── orders/             Órdenes del usuario + listado global (admin)
         │   ├── payments/           Stripe Checkout, confirm, session, webhook
         │   └── uploads/            Subida de imágenes a Supabase Storage
         ├── routes/index.ts         Router principal + Swagger UI montado en /docs
@@ -179,12 +192,14 @@ http://localhost:4000/api/v1/docs.json
 | GET | `/api/v1/health` | — | Estado del servidor |
 | POST | `/api/v1/auth/register/request` | — | Enviar código OTP por email |
 | POST | `/api/v1/auth/register/verify` | — | Verificar OTP y crear cuenta |
-| GET | `/api/v1/games` | — | Listar catálogo (con `?q=` para buscar) |
+| GET | `/api/v1/games` | — | Listar catálogo — `?q=` busca en título/género/desarrollador; `?limit=&offset=` paginan (devuelve `meta.total`) |
 | GET | `/api/v1/games/:slug` | — | Detalle de un juego |
 | POST | `/api/v1/games` | Admin | Crear juego |
 | PATCH | `/api/v1/games/:slug` | Admin | Actualizar juego |
 | DELETE | `/api/v1/games/:slug` | Admin | Eliminar juego |
-| GET | `/api/v1/orders` | Usuario | Listar órdenes del usuario |
+| GET | `/api/v1/orders` | Usuario | Listar órdenes del usuario (con ítems) |
+| GET | `/api/v1/orders/:id` | Usuario | Detalle de una orden propia |
+| GET | `/api/v1/orders/all` | Admin | Todas las órdenes de la tienda |
 | POST | `/api/v1/payments/checkout` | Usuario | Crear sesión de Stripe Checkout |
 | POST | `/api/v1/payments/confirm` | Usuario | Confirmar compra y registrar orden |
 | GET | `/api/v1/payments/session/:id` | — | Datos de sesión completada |

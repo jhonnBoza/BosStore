@@ -7,7 +7,7 @@ import AddToCartButton from '@/components/cart/AddToCartButton'
 import WishlistButton from '@/components/wishlist/WishlistButton'
 import { finalPrice, hasDiscount, formatPrice } from '@/lib/pricing'
 
-export default function GameCard({ game }: { game: Game }) {
+export default function GameCard({ game, isNew = false }: { game: Game; isNew?: boolean }) {
   const inStock = game.stock > 0
   const onSale = hasDiscount(game)
   const price = finalPrice(game)
@@ -44,21 +44,24 @@ export default function GameCard({ game }: { game: Game }) {
           </div>
         )}
 
-        {/* Badge de descuento */}
-        {onSale && (
-          <span className="absolute left-2 top-2 bg-red-600 px-2 py-0.5 font-inter text-[10px] font-bold uppercase tracking-wider text-white">
-            -{game.discount_percent}%
-          </span>
-        )}
-
-        {/* Genre tag */}
-        {game.genre && (
-          <span
-            className={`absolute left-2 ${onSale ? 'top-9' : 'top-2'} bg-black/60 px-2 py-0.5 font-inter text-[9px] uppercase tracking-widest text-white/60 backdrop-blur-sm`}
-          >
-            {game.genre}
-          </span>
-        )}
+        {/* Badges apilados: descuento / nuevo / género */}
+        <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+          {onSale && (
+            <span className="bg-red-600 px-2 py-0.5 font-inter text-[10px] font-bold uppercase tracking-wider text-white">
+              -{game.discount_percent}%
+            </span>
+          )}
+          {isNew && (
+            <span className="bg-emerald-500 px-2 py-0.5 font-inter text-[10px] font-bold uppercase tracking-wider text-white">
+              Nuevo
+            </span>
+          )}
+          {game.genre && (
+            <span className="bg-black/60 px-2 py-0.5 font-inter text-[9px] uppercase tracking-widest text-white/60 backdrop-blur-sm">
+              {game.genre}
+            </span>
+          )}
+        </div>
 
         {/* Wishlist */}
         <div className="absolute right-2 top-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">

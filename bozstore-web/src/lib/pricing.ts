@@ -16,8 +16,8 @@ export function finalPrice(game: Priceable): number {
   return Math.round(price * (1 - d / 100) * 100) / 100
 }
 
-/** Formatea un número como precio en soles (S/). */
+/** Formatea un número como precio en dólares (USD), la misma moneda que cobra Stripe. */
 export function formatPrice(value: number): string {
   const safe = Number.isFinite(value) ? value : 0
-  return `S/ ${safe.toFixed(2)}`
+  return `$${safe.toFixed(2)}`
 }

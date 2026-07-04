@@ -7,8 +7,10 @@ import {
   Library,
   LogOut,
   Shield,
+  ShoppingBag,
   User,
 } from 'lucide-react'
+import { formatPrice } from '@/lib/pricing'
 import EditProfile from '@/components/account/EditProfile'
 import LogoutButton from '@/components/auth/LogoutButton'
 
@@ -56,6 +58,35 @@ export default async function AccountPage() {
         title: row.title,
         cover_url: row.cover_url,
       }))
+  }
+
+  // Mis pedidos: historial de órdenes vía la API (GET /orders con el JWT de sesión)
+  type OrderItem = { id: string; title: string; price: number; quantity: number }
+  type Order = {
+    id: string
+    total: number
+    status: string
+    created_at: string
+    order_items: OrderItem[]
+  }
+  let orders: Order[] = []
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
+    try {
+      const res = await fetch(`${base}/orders`, {
+        cache: 'no-store',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const json = (await res.json()) as { data: Order[] }
+        orders = json.data ?? []
+      }
+    } catch {
+      // API caída: la sección simplemente se muestra vacía
+    }
   }
 
   // Lista de deseos: wishlist del usuario (RLS) + datos del juego (games es público)
@@ -196,6 +227,67 @@ export default async function AccountPage() {
                   Explorar catálogo
                 </Link>
               </div>
+            </div>
+          )}
+        </section>
+
+        {/* Mis pedidos */}
+        <section className="border border-white/10 bg-zinc-900/40">
+          <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <ShoppingBag className="h-3.5 w-3.5 text-white/25" />
+              <h2 className="font-podium text-xs uppercase tracking-widest text-white/60">
+                Mis pedidos
+              </h2>
+            </div>
+            <span className="font-inter text-[10px] uppercase tracking-widest text-white/25">
+              {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
+            </span>
+          </div>
+
+          {orders.length > 0 ? (
+            <ul className="divide-y divide-white/5">
+              {orders.map((order) => (
+                <li key={order.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-6 py-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-1 font-inter text-sm text-white/80">
+                      {order.order_items
+                        .map((it) => (it.quantity > 1 ? `${it.title} ×${it.quantity}` : it.title))
+                        .join(', ')}
+                    </p>
+                    <p className="mt-0.5 font-inter text-[10px] uppercase tracking-widest text-white/25">
+                      #{order.id.slice(0, 8)} ·{' '}
+                      {new Date(order.created_at).toLocaleDateString('es-PE', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                  <span
+                    className={`border px-2 py-0.5 font-inter text-[9px] uppercase tracking-widest ${
+                      order.status === 'paid'
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                        : 'border-amber-500/30 bg-amber-500/10 text-amber-400'
+                    }`}
+                  >
+                    {order.status === 'paid' ? 'Pagado' : order.status}
+                  </span>
+                  <span className="font-inter text-sm font-bold text-white">
+                    {formatPrice(Number(order.total))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <ShoppingBag className="mb-3 h-9 w-9 text-white/10" />
+              <p className="font-inter text-sm text-white/25">
+                Todavía no tienes pedidos.
+              </p>
+              <p className="mt-1 font-inter text-xs text-white/15">
+                Tus compras aparecerán aquí con su fecha, estado y total.
+              </p>
             </div>
           )}
         </section>

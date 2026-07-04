@@ -29,7 +29,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: '4. Pagos',
     body: [
-      'Los pagos se procesan de forma segura a través de Stripe. BosStore no almacena los datos de tu tarjeta. Los precios se muestran en soles (S/) e incluyen los impuestos aplicables.',
+      'Los pagos se procesan de forma segura a través de Stripe. BosStore no almacena los datos de tu tarjeta. Los precios se muestran en dólares estadounidenses (USD) e incluyen los impuestos aplicables.',
     ],
   },
   {

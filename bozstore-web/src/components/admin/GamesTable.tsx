@@ -2,16 +2,23 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { ExternalLink, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ExternalLink, Search } from 'lucide-react'
 import type { Game } from '@/types/game'
 import { hasDiscount, finalPrice, formatPrice } from '@/lib/pricing'
 import DeleteGameButton from './DeleteGameButton'
 
 type Filter = 'all' | 'sale' | 'low' | 'out'
 
+const PER_PAGE = 10
+
 export default function GamesTable({ games }: { games: Game[] }) {
   const [query, setQuery]   = useState('')
   const [filter, setFilter] = useState<Filter>('all')
+  const [page, setPage]     = useState(1)
+
+  // Cambiar búsqueda o filtro vuelve a la página 1
+  const changeQuery  = (v: string) => { setQuery(v); setPage(1) }
+  const changeFilter = (f: Filter) => { setFilter(f); setPage(1) }
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
@@ -46,6 +53,11 @@ export default function GamesTable({ games }: { games: Game[] }) {
     { key: 'out',  label: 'Sin stock',   count: counts.out   },
   ]
 
+  // Paginación local sobre el resultado filtrado
+  const totalPages  = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
+  const currentPage = Math.min(page, totalPages)
+  const visible     = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
+
   return (
     <div>
       {/* Toolbar */}
@@ -55,7 +67,7 @@ export default function GamesTable({ games }: { games: Game[] }) {
           <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-300 dark:text-white/20" />
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => changeQuery(e.target.value)}
             placeholder="Buscar por título, slug, género…"
             className="w-full border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-zinc-900 py-2 pl-9 pr-4 font-inter text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/20 outline-none transition-colors focus:border-zinc-300 dark:border-white/20 sm:w-80"
           />
@@ -66,7 +78,7 @@ export default function GamesTable({ games }: { games: Game[] }) {
           {FILTERS.map(({ key, label, count }) => (
             <button
               key={key}
-              onClick={() => setFilter(key)}
+              onClick={() => changeFilter(key)}
               className={`flex items-center gap-1.5 border px-3 py-1.5 font-inter text-[10px] uppercase tracking-widest transition-colors ${
                 filter === key
                   ? 'border-red-600 bg-red-600 text-zinc-900 dark:text-white'
@@ -119,7 +131,7 @@ export default function GamesTable({ games }: { games: Game[] }) {
           </div>
 
           {/* Rows */}
-          {filtered.map((game) => {
+          {visible.map((game) => {
             const onSale = hasDiscount(game)
             const price  = finalPrice(game)
             const stockColor =
@@ -219,6 +231,35 @@ export default function GamesTable({ games }: { games: Game[] }) {
               </div>
             )
           })}
+
+          {/* Pager */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-zinc-200 px-5 py-3 dark:border-white/10">
+              <span className="font-inter text-[10px] uppercase tracking-widest text-zinc-400 dark:text-white/30">
+                Página {currentPage} de {totalPages}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                  aria-label="Página anterior"
+                  className="flex h-8 w-8 items-center justify-center border border-zinc-200 text-zinc-500 transition-colors enabled:hover:border-zinc-400 enabled:hover:text-zinc-900 disabled:cursor-not-allowed disabled:text-zinc-300 dark:border-white/10 dark:text-white/50 dark:enabled:hover:border-white/30 dark:enabled:hover:text-white dark:disabled:text-white/15"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPage(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  aria-label="Página siguiente"
+                  className="flex h-8 w-8 items-center justify-center border border-zinc-200 text-zinc-500 transition-colors enabled:hover:border-zinc-400 enabled:hover:text-zinc-900 disabled:cursor-not-allowed disabled:text-zinc-300 dark:border-white/10 dark:text-white/50 dark:enabled:hover:border-white/30 dark:enabled:hover:text-white dark:disabled:text-white/15"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

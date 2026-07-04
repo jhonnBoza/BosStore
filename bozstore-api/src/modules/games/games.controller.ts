@@ -1,10 +1,24 @@
 import { type Request, type Response, type NextFunction } from 'express'
 import * as service from './games.service'
 
-export async function listGames(_req: Request, res: Response, next: NextFunction) {
+export async function listGames(req: Request, res: Response, next: NextFunction) {
   try {
-    const games = await service.findAllGames()
-    res.json({ success: true, data: games })
+    const q = typeof req.query.q === 'string' ? req.query.q : undefined
+
+    // limit/offset opcionales — se sanean a enteros no negativos
+    const parseIntParam = (v: unknown, min: number, max: number) => {
+      const n = typeof v === 'string' ? Number.parseInt(v, 10) : NaN
+      return Number.isFinite(n) && n >= min ? Math.min(n, max) : undefined
+    }
+    const limit  = parseIntParam(req.query.limit, 1, 100)
+    const offset = parseIntParam(req.query.offset, 0, 100_000)
+
+    const { games, total } = await service.findAllGames({ q, limit, offset })
+    res.json({
+      success: true,
+      data: games,
+      meta: { total, limit: limit ?? null, offset: offset ?? 0 },
+    })
   } catch (err) { next(err) }
 }
 
