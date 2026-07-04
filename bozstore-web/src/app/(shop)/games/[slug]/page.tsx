@@ -101,8 +101,7 @@ export default async function GameDetailPage(props: {
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 to-zinc-900" />
         )}
 
-        <div className="relative flex h-full flex-col justify-between px-6 py-8 sm:px-10 lg:px-16">
-          {/* Back */}
+        <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col justify-between px-6 py-8 sm:px-10 lg:px-16">
           <Link
             href="/games"
             className="inline-flex w-fit items-center gap-2 font-inter text-xs uppercase tracking-widest text-white/40 transition-colors hover:text-white/70"
@@ -111,26 +110,27 @@ export default async function GameDetailPage(props: {
             Catálogo
           </Link>
 
-          {/* Title + tags */}
-          <div className="mt-auto">
-            <div className="mb-4 flex flex-wrap gap-2">
-              {game.genre && (
-                <span className="inline-flex items-center gap-1.5 border border-white/10 px-2.5 py-1 font-inter text-[10px] uppercase tracking-widest text-white/40">
-                  <Tag className="h-2.5 w-2.5" />
-                  {game.genre}
-                </span>
-              )}
-              {game.platform && (
-                <span className="inline-flex items-center gap-1.5 border border-white/10 px-2.5 py-1 font-inter text-[10px] uppercase tracking-widest text-white/40">
-                  <Monitor className="h-2.5 w-2.5" />
-                  {game.platform}
-                </span>
-              )}
-            </div>
+          <div className="mt-auto grid grid-cols-1 lg:grid-cols-3 lg:gap-16">
+            <div className="w-full max-w-xs lg:col-span-1">
+              <div className="mb-4 flex flex-wrap gap-2">
+                {game.genre && (
+                  <span className="inline-flex items-center gap-1.5 border border-white/10 px-2.5 py-1 font-inter text-[10px] uppercase tracking-widest text-white/40">
+                    <Tag className="h-2.5 w-2.5" />
+                    {game.genre}
+                  </span>
+                )}
+                {game.platform && (
+                  <span className="inline-flex items-center gap-1.5 border border-white/10 px-2.5 py-1 font-inter text-[10px] uppercase tracking-widest text-white/40">
+                    <Monitor className="h-2.5 w-2.5" />
+                    {game.platform}
+                  </span>
+                )}
+              </div>
 
-            <h1 className="max-w-3xl font-podium text-4xl uppercase leading-[0.9] tracking-tight text-white sm:text-5xl lg:text-6xl">
-              {game.title}
-            </h1>
+              <h1 className="font-podium text-4xl uppercase leading-[0.9] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                {game.title}
+              </h1>
+            </div>
           </div>
         </div>
       </div>
@@ -139,9 +139,8 @@ export default async function GameDetailPage(props: {
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 lg:px-16">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-16">
 
-          {/* Columna izquierda — carátula + widget de compra */}
+          {/* Columna izquierda — carátula */}
           <div className="lg:col-span-1">
-            {/* Carátula */}
             <div className="relative mx-auto aspect-[3/4] w-full max-w-xs overflow-hidden border border-white/5 bg-zinc-900 lg:mx-0">
               {game.cover_url ? (
                 <Image
@@ -158,41 +157,6 @@ export default async function GameDetailPage(props: {
                   </span>
                 </div>
               )}
-            </div>
-
-            {/* Compra */}
-            <div className="mt-6 border border-white/10 bg-zinc-900 p-6">
-              <div className="mb-5 flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  {onSale && (
-                    <span className="bg-red-600 px-2 py-1 font-inter text-sm font-bold text-white">
-                      -{game.discount_percent}%
-                    </span>
-                  )}
-                  <div className="flex flex-col">
-                    {onSale && (
-                      <span className="font-inter text-sm text-white/40 line-through">
-                        {formatPrice(game.price)}
-                      </span>
-                    )}
-                    <span
-                      className={`font-inter text-3xl font-bold ${onSale ? 'text-red-500' : 'text-white'}`}
-                    >
-                      {formatPrice(price)}
-                    </span>
-                  </div>
-                </div>
-                <span className={`font-inter text-xs uppercase tracking-widest ${
-                  inStock ? 'text-emerald-500' : 'text-red-500'
-                }`}>
-                  {inStock ? `${game.stock} disponibles` : 'Agotado'}
-                </span>
-              </div>
-
-              <AddToCartButton game={game} />
-              <div className="mt-3">
-                <WishlistButton slug={game.slug} variant="full" />
-              </div>
             </div>
           </div>
 
@@ -218,43 +182,80 @@ export default async function GameDetailPage(props: {
               </p>
             )}
 
-            {/* Ficha técnica */}
-            <div className="mt-10 border-t border-white/10 pt-8">
-              <h3 className="mb-5 font-podium text-xs uppercase tracking-widest text-white/40">
-                Ficha técnica
-              </h3>
-              <dl className="space-y-3">
-                {[
-                  { label: 'Género',        value: game.genre },
-                  { label: 'Plataforma',    value: game.platform },
-                  { label: 'Desarrollador', value: game.developer },
-                  {
-                    label: 'Lanzamiento',
-                    value: game.release_date
-                      ? new Date(`${game.release_date}T00:00:00`).toLocaleDateString(
-                          'es-MX',
-                          { year: 'numeric', month: 'long', day: 'numeric' },
-                        )
-                      : undefined,
-                  },
-                  {
-                    label: 'Stock',
-                    value: `${game.stock} unidades`,
-                    className: inStock ? 'text-white/50' : 'text-red-500',
-                  },
-                ]
-                  .filter(row => row.value)
-                  .map(row => (
-                    <div key={row.label} className="flex items-start gap-6">
-                      <dt className="w-24 shrink-0 font-inter text-[10px] uppercase tracking-widest text-white/40">
-                        {row.label}
-                      </dt>
-                      <dd className={`font-inter text-sm ${row.className ?? 'text-white/50'}`}>
-                        {row.value}
-                      </dd>
+            <div className="mt-10 grid gap-6 border-t border-white/10 pt-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+              {/* Ficha técnica */}
+              <div>
+                <h3 className="mb-5 font-podium text-xs uppercase tracking-widest text-white/40">
+                  Ficha técnica
+                </h3>
+                <dl className="space-y-3">
+                  {[
+                    { label: 'Género',        value: game.genre },
+                    { label: 'Plataforma',    value: game.platform },
+                    { label: 'Desarrollador', value: game.developer },
+                    {
+                      label: 'Lanzamiento',
+                      value: game.release_date
+                        ? new Date(`${game.release_date}T00:00:00`).toLocaleDateString(
+                            'es-MX',
+                            { year: 'numeric', month: 'long', day: 'numeric' },
+                          )
+                        : undefined,
+                    },
+                    {
+                      label: 'Stock',
+                      value: `${game.stock} unidades`,
+                      className: inStock ? 'text-white/50' : 'text-red-500',
+                    },
+                  ]
+                    .filter(row => row.value)
+                    .map(row => (
+                      <div key={row.label} className="flex items-start gap-6">
+                        <dt className="w-24 shrink-0 font-inter text-[10px] uppercase tracking-widest text-white/40">
+                          {row.label}
+                        </dt>
+                        <dd className={`font-inter text-sm ${row.className ?? 'text-white/50'}`}>
+                          {row.value}
+                        </dd>
+                      </div>
+                    ))}
+                </dl>
+              </div>
+
+              {/* Compra */}
+              <div className="border border-white/10 bg-zinc-900 p-6">
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    {onSale && (
+                      <span className="bg-red-600 px-2 py-1 font-inter text-sm font-bold text-white">
+                        -{game.discount_percent}%
+                      </span>
+                    )}
+                    <div className="flex flex-col">
+                      {onSale && (
+                        <span className="font-inter text-sm text-white/40 line-through">
+                          {formatPrice(game.price)}
+                        </span>
+                      )}
+                      <span
+                        className={`font-inter text-3xl font-bold ${onSale ? 'text-red-500' : 'text-white'}`}
+                      >
+                        {formatPrice(price)}
+                      </span>
                     </div>
-                  ))}
-              </dl>
+                  </div>
+                  <span className={`whitespace-nowrap font-inter text-xs uppercase tracking-widest ${
+                    inStock ? 'text-emerald-500' : 'text-red-500'
+                  }`}>
+                    {inStock ? `${game.stock} disponibles` : 'Agotado'}
+                  </span>
+                </div>
+
+                <AddToCartButton game={game} />
+                <div className="mt-3">
+                  <WishlistButton slug={game.slug} variant="full" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
