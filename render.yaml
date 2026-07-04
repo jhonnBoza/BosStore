@@ -13,7 +13,9 @@ services:
     rootDir: bozstore-api
     plan: free
     region: oregon
-    buildCommand: npm install && npm run build
+    # --include=dev es necesario: con NODE_ENV=production activo, npm install
+    # se salta las devDependencies (@types/*) y tsc falla al compilar.
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm run start
     healthCheckPath: /api/v1/health
     autoDeploy: true
