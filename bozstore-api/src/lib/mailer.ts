@@ -2,6 +2,66 @@ import nodemailer, { type Transporter } from 'nodemailer'
 import { env } from '../config/env'
 import { AppError } from './errors'
 
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
+
+function otpEmailContent(code: string) {
+  const html = `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;background:#0a0a0a;color:#fff;padding:32px;border-radius:12px">
+    <h1 style="margin:0 0 4px;font-size:22px;letter-spacing:1px">Bos<span style="color:#dc2626">Store</span></h1>
+    <p style="color:#a1a1aa;font-size:13px;margin:0 0 24px">Verificación de tu cuenta</p>
+    <p style="font-size:14px;color:#d4d4d8;margin:0 0 12px">Tu código de verificación es:</p>
+    <div style="font-size:38px;font-weight:bold;letter-spacing:12px;background:#18181b;border:1px solid #27272a;border-radius:8px;padding:18px;text-align:center;color:#fff">${code}</div>
+    <p style="font-size:12px;color:#71717a;margin:20px 0 0">Este código expira en 10 minutos. Si no creaste una cuenta en BosStore, ignora este correo.</p>
+  </div>`
+  const subject = `${code} es tu código de verificación — BosStore`
+  const text = `Tu código de verificación de BosStore es: ${code} (expira en 10 minutos).`
+  return { subject, text, html }
+}
+
+function sendFailedError(err: unknown): AppError {
+  console.error('[mailer] Fallo al enviar OTP:', err)
+  return new AppError(
+    502,
+    'No se pudo enviar el correo de verificación en este momento. Intenta más tarde o regístrate con Google/Discord.',
+    'EMAIL_SEND_FAILED',
+  )
+}
+
+// ── Brevo (API HTTPS) ─────────────────────────────────────────────────────
+// Se usa con prioridad cuando está configurada: los hosts que bloquean SMTP
+// (ej. Render en su plan free) sí dejan pasar HTTPS normal.
+async function sendViaBrevo(to: string, code: string): Promise<void> {
+  const { subject, text, html } = otpEmailContent(code)
+
+  let res: Response
+  try {
+    res = await fetch(BREVO_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'api-key': env.BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender: { name: 'BosStore', email: env.BREVO_SENDER_EMAIL },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+        textContent: text,
+      }),
+      signal: AbortSignal.timeout(10_000),
+    })
+  } catch (err) {
+    throw sendFailedError(err)
+  }
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '')
+    throw sendFailedError(new Error(`Brevo respondió ${res.status}: ${body}`))
+  }
+}
+
+// ── SMTP (Nodemailer) — respaldo para desarrollo local ───────────────────
 let transporter: Transporter | null = null
 
 function getTransporter(): Transporter | null {
@@ -24,11 +84,7 @@ function getTransporter(): Transporter | null {
   return transporter
 }
 
-export function isMailerConfigured(): boolean {
-  return !!(env.SMTP_USER && env.SMTP_PASS)
-}
-
-export async function sendOtpEmail(to: string, code: string): Promise<void> {
+async function sendViaSmtp(to: string, code: string): Promise<void> {
   const t = getTransporter()
   if (!t) {
     throw new AppError(
@@ -38,34 +94,24 @@ export async function sendOtpEmail(to: string, code: string): Promise<void> {
     )
   }
 
+  const { subject, text, html } = otpEmailContent(code)
   const from = env.SMTP_FROM || env.SMTP_USER
-  const html = `
-  <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;background:#0a0a0a;color:#fff;padding:32px;border-radius:12px">
-    <h1 style="margin:0 0 4px;font-size:22px;letter-spacing:1px">Bos<span style="color:#dc2626">Store</span></h1>
-    <p style="color:#a1a1aa;font-size:13px;margin:0 0 24px">Verificación de tu cuenta</p>
-    <p style="font-size:14px;color:#d4d4d8;margin:0 0 12px">Tu código de verificación es:</p>
-    <div style="font-size:38px;font-weight:bold;letter-spacing:12px;background:#18181b;border:1px solid #27272a;border-radius:8px;padding:18px;text-align:center;color:#fff">${code}</div>
-    <p style="font-size:12px;color:#71717a;margin:20px 0 0">Este código expira en 10 minutos. Si no creaste una cuenta en BosStore, ignora este correo.</p>
-  </div>`
 
   try {
-    await t.sendMail({
-      from: `BosStore <${from}>`,
-      to,
-      subject: `${code} es tu código de verificación — BosStore`,
-      text: `Tu código de verificación de BosStore es: ${code} (expira en 10 minutos).`,
-      html,
-    })
+    await t.sendMail({ from: `BosStore <${from}>`, to, subject, text, html })
   } catch (err) {
-    // Algunos hosts (ej. Render en su plan free) bloquean el tráfico SMTP
-    // saliente, así que sendMail() puede fallar aunque las credenciales
-    // sean correctas. Se registra el error real y se devuelve un mensaje
-    // claro en vez del genérico "Internal server error".
-    console.error('[mailer] Fallo al enviar OTP:', err)
-    throw new AppError(
-      502,
-      'No se pudo enviar el correo de verificación en este momento. Intenta más tarde o regístrate con Google/Discord.',
-      'EMAIL_SEND_FAILED',
-    )
+    throw sendFailedError(err)
   }
+}
+
+// ── API pública del módulo ────────────────────────────────────────────────
+export function isMailerConfigured(): boolean {
+  return !!(env.BREVO_API_KEY && env.BREVO_SENDER_EMAIL) || !!(env.SMTP_USER && env.SMTP_PASS)
+}
+
+export async function sendOtpEmail(to: string, code: string): Promise<void> {
+  if (env.BREVO_API_KEY && env.BREVO_SENDER_EMAIL) {
+    return sendViaBrevo(to, code)
+  }
+  return sendViaSmtp(to, code)
 }
