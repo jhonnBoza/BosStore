@@ -7,6 +7,7 @@ import ordersRouter   from '../modules/orders/orders.routes'
 import paymentsRouter from '../modules/payments/payments.routes'
 import uploadsRouter  from '../modules/uploads/uploads.routes'
 import reviewsRouter  from '../modules/reviews/reviews.routes'
+import aiRouter       from '../modules/ai/ai.routes'
 
 const router = Router()
 
@@ -29,5 +30,6 @@ router.use('/orders',   ordersRouter)
 router.use('/payments', paymentsRouter)
 router.use('/uploads',  uploadsRouter)
 router.use('/reviews',  reviewsRouter)
+router.use('/ai',       aiRouter)
 
 export default router

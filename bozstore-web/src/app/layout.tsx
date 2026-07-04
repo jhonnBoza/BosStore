@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Bebas_Neue } from 'next/font/google'
 import './globals.css'
+import AiAssistant from '@/components/ai/AiAssistant'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -47,7 +48,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Runs before React hydration — sets dark/light class without flash */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('bos-theme'),d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='light'||(!t&&!d)){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}})()` }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <AiAssistant />
+      </body>
     </html>
   )
 }

@@ -25,6 +25,10 @@ const schema = z.object({
   // tiene prioridad sobre SMTP_*.
   BREVO_API_KEY:            z.string().default(''),
   BREVO_SENDER_EMAIL:       z.string().default(''),
+  // IA — asistente del catálogo (Google Gemini). Opcional: si no hay key,
+  // el endpoint responde 503 y el widget del frontend no se muestra.
+  GEMINI_API_KEY:          z.string().default(''),
+  GEMINI_MODEL:            z.string().default('gemini-2.5-flash'),
 })
 
 const parsed = schema.safeParse(process.env)
