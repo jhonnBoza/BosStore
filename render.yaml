@@ -1,0 +1,42 @@
+# Render Blueprint — despliegue del backend (API Express) de BosStore.
+#
+# Uso: en Render → New → "Blueprint" → conecta este repositorio.
+# Render leerá este archivo y creará el servicio. Solo tendrás que rellenar
+# en el dashboard las variables marcadas (sync: false), que son secretas.
+#
+# El frontend (Next.js) se despliega aparte en Vercel (no necesita este archivo).
+
+services:
+  - type: web
+    name: bozstore-api
+    runtime: node
+    rootDir: bozstore-api
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # URL del frontend en Vercel (para CORS). Se rellena tras desplegar la web.
+      - key: FRONTEND_URL
+        sync: false
+      # Supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWKS_URL
+        sync: false
+      # Stripe (STRIPE_WEBHOOK_SECRET puede quedar vacío al inicio)
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      # Correo (Gmail App Password) para los códigos de verificación
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
